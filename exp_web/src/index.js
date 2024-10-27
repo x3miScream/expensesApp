@@ -4,7 +4,12 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import {registerLicense} from '@syncfusion/ej2-base';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+registerLicense('Ngo9BigBOggjHTQxAR8/V1NCaF1cXGdCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWH9cd3RRR2VdWEFzWEU=');
+
 root.render(
   <React.StrictMode>
     <App />
