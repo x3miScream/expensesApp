@@ -1,0 +1,77 @@
+[1mdiff --git a/.gitignore b/.gitignore[m
+[1mindex 7720c81..a96520c 100644[m
+[1m--- a/.gitignore[m
+[1m+++ b/.gitignore[m
+[36m@@ -1,4 +1,4 @@[m
+ #exp_web/node_modules[m
+ exp_web/node_modules[m
+ server/server/bin[m
+[31m-server/server/obj/Debug[m
+\ No newline at end of file[m
+[32m+[m[32mserver/server/obj[m
+\ No newline at end of file[m
+[1mdiff --git a/server/server/obj/Debug/net8.0/apphost.exe b/server/server/obj/Debug/net8.0/apphost.exe[m
+[1mindex b5f008a..a05ba03 100644[m
+Binary files a/server/server/obj/Debug/net8.0/apphost.exe and b/server/server/obj/Debug/net8.0/apphost.exe differ
+[1mdiff --git a/server/server/obj/Debug/net8.0/ref/server.dll b/server/server/obj/Debug/net8.0/ref/server.dll[m
+[1mindex 6675015..c929e88 100644[m
+Binary files a/server/server/obj/Debug/net8.0/ref/server.dll and b/server/server/obj/Debug/net8.0/ref/server.dll differ
+[1mdiff --git a/server/server/obj/Debug/net8.0/refint/server.dll b/server/server/obj/Debug/net8.0/refint/server.dll[m
+[1mindex 6675015..c929e88 100644[m
+Binary files a/server/server/obj/Debug/net8.0/refint/server.dll and b/server/server/obj/Debug/net8.0/refint/server.dll differ
+[1mdiff --git a/server/server/obj/Debug/net8.0/server.AssemblyInfo.cs b/server/server/obj/Debug/net8.0/server.AssemblyInfo.cs[m
+[1mindex 8fff47e..eb754c2 100644[m
+[1m--- a/server/server/obj/Debug/net8.0/server.AssemblyInfo.cs[m
+[1m+++ b/server/server/obj/Debug/net8.0/server.AssemblyInfo.cs[m
+[36m@@ -13,7 +13,7 @@[m [musing System.Reflection;[m
+ [assembly: System.Reflection.AssemblyCompanyAttribute("server")][m
+ [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")][m
+ [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")][m
+[31m-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9ce60c5ada0b6ce0fb578892b1ddc03df8d760a4")][m
+[32m+[m[32m[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+581f306647f970bd03e3bcab8383e0828f987250")][m
+ [assembly: System.Reflection.AssemblyProductAttribute("server")][m
+ [assembly: System.Reflection.AssemblyTitleAttribute("server")][m
+ [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")][m
+[1mdiff --git a/server/server/obj/Debug/net8.0/server.AssemblyInfoInputs.cache b/server/server/obj/Debug/net8.0/server.AssemblyInfoInputs.cache[m
+[1mindex ba0fccf..8f9c015 100644[m
+[1m--- a/server/server/obj/Debug/net8.0/server.AssemblyInfoInputs.cache[m
+[1m+++ b/server/server/obj/Debug/net8.0/server.AssemblyInfoInputs.cache[m
+[36m@@ -1 +1 @@[m
+[31m-cc27d943374584a9c6630e8e8bf1add2c73deb162150bd1c493c3925becdb591[m
+[32m+[m[32mde389ba10f21c9d15c6e9d6d91a375d2513a333e66ea360c4b0e296958c39ac0[m
+[1mdiff --git a/server/server/obj/Debug/net8.0/server.GeneratedMSBuildEditorConfig.editorconfig b/server/server/obj/Debug/net8.0/server.GeneratedMSBuildEditorConfig.editorconfig[m
+[1mindex e644bcc..21b6c51 100644[m
+[1m--- a/server/server/obj/Debug/net8.0/server.GeneratedMSBuildEditorConfig.editorconfig[m
+[1m+++ b/server/server/obj/Debug/net8.0/server.GeneratedMSBuildEditorConfig.editorconfig[m
+[36m@@ -9,11 +9,11 @@[m [mbuild_property.EnforceExtendedAnalyzerRules =[m
+ build_property._SupportedPlatformList = Linux,macOS,Windows[m
+ build_property.RootNamespace = server[m
+ build_property.RootNamespace = server[m
+[31m-build_property.ProjectDir = d:\Projects\Dev\ExpensesApplication\ExpensesApp\server\server\[m
+[32m+[m[32mbuild_property.ProjectDir = D:\Projects\Dev\ExpensesApplication\ExpensesApp\server\server\[m
+ build_property.EnableComHosting = [m
+ build_property.EnableGeneratedComInterfaceComImportInterop = [m
+ build_property.RazorLangVersion = 8.0[m
+ build_property.SupportLocalizedComponentNames = [m
+ build_property.GenerateRazorMetadataSourceChecksumAttributes = [m
+[31m-build_property.MSBuildProjectDirectory = d:\Projects\Dev\ExpensesApplication\ExpensesApp\server\server[m
+[32m+[m[32mbuild_property.MSBuildProjectDirectory = D:\Projects\Dev\ExpensesApplication\ExpensesApp\server\server[m
+ build_property._RazorSourceGeneratorDebug = [m
+[1mdiff --git a/server/server/obj/Debug/net8.0/server.assets.cache b/server/server/obj/Debug/net8.0/server.assets.cache[m
+[1mindex 1fc6ac6..7c55605 100644[m
+Binary files a/server/server/obj/Debug/net8.0/server.assets.cache and b/server/server/obj/Debug/net8.0/server.assets.cache differ
+[1mdiff --git a/server/server/obj/Debug/net8.0/server.dll b/server/server/obj/Debug/net8.0/server.dll[m
+[1mindex 4f8b963..cf5b788 100644[m
+Binary files a/server/server/obj/Debug/net8.0/server.dll and b/server/server/obj/Debug/net8.0/server.dll differ
+[1mdiff --git a/server/server/obj/Debug/net8.0/server.pdb b/server/server/obj/Debug/net8.0/server.pdb[m
+[1mindex a4d104d..1eaff83 100644[m
+Binary files a/server/server/obj/Debug/net8.0/server.pdb and b/server/server/obj/Debug/net8.0/server.pdb differ
+[1mdiff --git a/server/server/obj/Debug/net8.0/server.sourcelink.json b/server/server/obj/Debug/net8.0/server.sourcelink.json[m
+[1mindex 1347369..9aa0c23 100644[m
+[1m--- a/server/server/obj/Debug/net8.0/server.sourcelink.json[m
+[1m+++ b/server/server/obj/Debug/net8.0/server.sourcelink.json[m
+[36m@@ -1 +1 @@[m
+[31m-{"documents":{"D:\\Projects\\Dev\\ExpensesApplication\\ExpensesApp\\*":"https://raw.githubusercontent.com/x3miScream/expensesApp/d68f79080083fdc1c4e4837a768a4af4b59e2175/*"}}[m
+\ No newline at end of file[m
+[32m+[m[32m{"documents":{"D:\\Projects\\Dev\\ExpensesApplication\\ExpensesApp\\*":"https://raw.githubusercontent.com/x3miScream/expensesApp/581f306647f970bd03e3bcab8383e0828f987250/*"}}[m
+\ No newline at end of file[m

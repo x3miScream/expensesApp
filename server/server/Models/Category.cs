@@ -5,7 +5,7 @@ namespace Server.Models{
     [Table("Categories")]
     public class Category{
         [Key]
-        public int CategoryId {get;set;}
+        public long CategoryId {get;set;}
         [Column(TypeName = "nvarchar(50)")]
         public string CategoryCode {get;set;} = string.Empty;
         [Column(TypeName = "nvarchar(200)")]
