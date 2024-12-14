@@ -3,8 +3,12 @@ import CustomDataGrid from '../Components/CustomDataGrid';
 import useGetCategoriesAsync from '../Hooks/useGetCategoriesAsync.jsx';
 import useGetCategories from '../Hooks/useGetCategories.jsx';
 
+const refreshGrid = () => {
+    console.log('grid is refreshed');
+};
+
 const Categories = () => {
-    const {categoriesAsync, loadingStateasync} = useGetCategoriesAsync();
+    const {categoriesAsync, loadingStateasync} = useGetCategoriesAsync({refreshDatasourceCallback: refreshGrid});
     const {categories, loadingState} = useGetCategories();
     const columnsDirective = [
         // {field: 'CategoryId', headerText: 'Id', textAlign: 'Right', width: '100'},
@@ -26,9 +30,8 @@ const Categories = () => {
     // };
 
     return(<div>
-        {/* <CustomDataGrid dataSource={categoriesAsync}></CustomDataGrid> */}
-        <CustomDataGrid dataSource={categories}
-        columnsDirective={columnsDirective}></CustomDataGrid>
+        {/* <CustomDataGrid dataSource={categoriesAsync} columnsDirective={columnsDirective}></CustomDataGrid> */}
+        <CustomDataGrid dataSource={categories} columnsDirective={columnsDirective}></CustomDataGrid>
     </div>);
 };
 

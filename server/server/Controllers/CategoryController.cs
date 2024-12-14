@@ -18,7 +18,7 @@ public class CategoryController : ControllerBase
 
 
 
-    [HttpGet(Name = "Get")]
+    [HttpGet(Name = "GetCategories")]
     public async Task<ActionResult<List<CategoryReadDto>>> Get()
     {
         List<Category> categories = await _context.Categories.ToListAsync();

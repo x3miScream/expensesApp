@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 
-const useGetCategoriesAsync = async () => {
+const useGetCategoriesAsync = async (props) => {
+    const {refreshDatasourceCallback} = props;
     const [loadingState, setLoadingState] = useState(false);
     const [categories, setCategories] = useState([]);
 
@@ -23,7 +24,8 @@ const useGetCategoriesAsync = async () => {
             if(data.error){
                 throw new Error(data.error);
             }
-
+            
+            refreshDatasourceCallback();
             setCategories(data);
             setLoadingState(false);
         }

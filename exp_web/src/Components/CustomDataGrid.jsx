@@ -16,13 +16,13 @@ var CustomDataGrid = (props) => {
     return(
         <GridComponent dataSource={data}
             allowPaging={true}
-            pageSettings={{pageSize: 3 }}>
+            pageSettings={{pageSize: 10 }}>
             
                 {columnsSettings?.length === 0 ? <></>
                 : 
                     <ColumnsDirective>
                         {columnsSettings.map((item, index) => {
-                            return <ColumnDirective field={item.field} headerText={item.headerText}
+                            return <ColumnDirective key={index} field={item.field} headerText={item.headerText}
                                 textAlign={item.textAlign} width={item.width}>
                             </ColumnDirective>
                         })}
