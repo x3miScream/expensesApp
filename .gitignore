@@ -2,3 +2,4 @@
 exp_web/node_modules
 server/server/bin
 server/server/obj
+server/server/obj/
