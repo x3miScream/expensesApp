@@ -30,7 +30,7 @@ const useGetCategories = () => {
 
     useEffect(() => { getCategories() }, []);
 
-    return {categories, loadingState, };
+    return {categories, loadingState};
 };
 
 export default useGetCategories;

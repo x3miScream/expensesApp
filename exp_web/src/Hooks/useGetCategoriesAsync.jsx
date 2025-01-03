@@ -24,10 +24,10 @@ const useGetCategoriesAsync = async (props) => {
             if(data.error){
                 throw new Error(data.error);
             }
-            
-            refreshDatasourceCallback();
+            console.log(data)
             setCategories(data);
             setLoadingState(false);
+            refreshDatasourceCallback();
         }
         catch(error){
             console.log("Failed fetching categories");
