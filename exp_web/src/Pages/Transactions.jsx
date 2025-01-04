@@ -10,16 +10,16 @@ const Transactions = () => {
     const {transactions, loadingState} = useGetTransactions();
 
     const columnsDirective = [
+        {field: 'TransactionId', headerText: 'TransactionId', textAlign: 'Left', width: '100'},
+        {field: 'TransactionDate', headerText: 'TransactionDate', textAlign: 'Left', width: '100'},
+        {field: 'Note', headerText: 'TransactionNode', textAlign: 'Left', width: '100'}, 
+        {field: 'Amount', headerText: 'TransactionAmount', textAlign: 'Left', width: '100'},
+
         {field: 'CategoryId', headerText: 'Id', textAlign: 'Right', width: '100'},
         {field: 'CategoryCode', headerText: 'Code', textAlign: 'Left', width: '100'},
         {field: 'CategoryName', headerText: 'Name', textAlign: 'Left', width: '100'},
         {field: 'Icon', headerText: 'Icon', textAlign: 'Left', width: '100'},
         {field: 'CategoryType', headerText: 'CategoryType', textAlign: 'Left', width: '100'},
-
-        {field: 'TransactionId', headerText: 'TransactionId', textAlign: 'Left', width: '100'},
-        {field: 'TransactionDate', headerText: 'TransactionDate', textAlign: 'Left', width: '100'},
-        {field: 'TransactionNode', headerText: 'TransactionNode', textAlign: 'Left', width: '100'}, 
-        {field: 'TransactionAmount', headerText: 'TransactionAmount', textAlign: 'Left', width: '100'}
     ];
 
 

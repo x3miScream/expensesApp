@@ -23,14 +23,17 @@ public class TransactionController : ControllerBase
     public async Task<ActionResult<List<TransactionReadDto>>> Get()
     {
         List<Transaction> transactions = await _context.Transactions.ToListAsync();
+        Dictionary<long, Category> categoriesDict = await _context.Categories.ToDictionaryAsync(x => x.CategoryId, x => x);
 
         return Ok(transactions.Select(x => new TransactionReadDto(){
             TransactionId = x.TransactionId,
             CategoryId = x.CategoryId,
-            // Category = x.Category,
             Amount = x.Amount,
             Note = x.Note,
-            TransactionDate = x.TransactionDate
+            TransactionDate = x.TransactionDate,
+            CategoryCode = categoriesDict[x.CategoryId].CategoryCode,
+            CategoryName = categoriesDict[x.CategoryId].CategoryName,
+            CategoryType = categoriesDict[x.CategoryId].CategoryType
         }).ToList());
     }
 

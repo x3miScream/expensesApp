@@ -30,8 +30,8 @@ const Categories = () => {
     // };
 
     return(<div>
-        <CustomDataGrid dataSource={categoriesAsync} columnsDirective={columnsDirective}></CustomDataGrid>
-        {/* <CustomDataGrid dataSource={categories} columnsDirective={columnsDirective}></CustomDataGrid> */}
+        {/* <CustomDataGrid dataSource={categoriesAsync} columnsDirective={columnsDirective}></CustomDataGrid> */}
+        <CustomDataGrid dataSource={categories} columnsDirective={columnsDirective}></CustomDataGrid>
     </div>);
 };
 
