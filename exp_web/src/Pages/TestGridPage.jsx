@@ -1,5 +1,5 @@
-import CustomDataGrid from '../Components/CustomDataGrid.jsx';
-import CustomTextBox from '../Components/CustomTextBox.jsx';
+import CustomDataGrid from '../Components/UIControls/CustomDataGrid.jsx';
+import CustomTextBox from '../Components/UIControls/CustomTextBox.jsx';
 
 var TestGridPage = () => {
     return(

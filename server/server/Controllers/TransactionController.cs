@@ -81,9 +81,19 @@ public class TransactionController : ControllerBase
                 return BadRequest("No Transaction Found");
             }
 
+            Category category = await _context.Categories.FindAsync(foundTransaction.CategoryId);
+
+            if(category == null)
+            {
+                return BadRequest("Transaction with no category found");
+            }
+
             TransactionReadDto readDto = new TransactionReadDto(){
                 TransactionId = foundTransaction.TransactionId,
                 CategoryId = foundTransaction.CategoryId,
+                CategoryCode = category.CategoryCode,
+                CategoryName = category.CategoryName,
+                CategoryType = category.CategoryType,
                 Amount = foundTransaction.Amount,
                 Note = foundTransaction.Note,
                 TransactionDate = foundTransaction.TransactionDate

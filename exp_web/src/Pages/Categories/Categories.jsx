@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
-import CustomDataGrid from '../Components/CustomDataGrid';
-import useGetCategoriesAsync from '../Hooks/useGetCategoriesAsync.jsx';
-import useGetCategories from '../Hooks/useGetCategories.jsx';
+import CustomDataGrid from '../../Components/UIControls/CustomDataGrid.jsx';
+import useGetCategoriesAsync from '../../Hooks/useGetCategoriesAsync.jsx';
+import useGetCategories from '../../Hooks/useGetCategories.jsx';
 
 const refreshGrid = () => {
     console.log('grid is refreshed');

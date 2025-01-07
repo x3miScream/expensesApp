@@ -8,7 +8,9 @@ import {registerLicense} from '@syncfusion/ej2-base';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-registerLicense('Ngo9BigBOggjHTQxAR8/V1NCaF1cXGdCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWH9cd3RRR2VdWEFzWEU=');
+registerLicense('Ngo9BigBOggjHTQxAR8/V1NDaF5cWWtCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWH9cd3RWR2BZVER+V0Q=');
+// registerLicense('Ngo9BigBOggjHTQxAR8/V1NCaF1cXGdCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWX5ednVdRWhdVk1+XEo=');
+
 
 root.render(
   <React.StrictMode>

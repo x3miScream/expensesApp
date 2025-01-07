@@ -1,16 +1,11 @@
 import logo from './logo.svg';
 import './App.css';
-import TestGridPage from './Pages/TestGridPage';
-import Categories from './Pages/Categories.jsx';
-import Transactions from './Pages/Transactions.jsx';
+import ExpensesApp from './Components/ExpensesApp/ExpensesApp.jsx'
 
 function App() {
   return (
     <div className="App">
-      Hello There
-
-      <Categories></Categories>
-      <Transactions></Transactions>
+      <ExpensesApp></ExpensesApp>
     </div>
   );
 }

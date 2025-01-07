@@ -1,13 +1,30 @@
 import React from 'react'
-import CustomDataGrid from '../Components/CustomDataGrid';
-import useGetTransactions from '../Hooks/useGetTransactions.jsx';
+import CustomDataGrid from '../../Components/UIControls/CustomDataGrid.jsx';
+import useGetTransactions from '../../Hooks/useGetTransactions.jsx';
+import CustomButton from '../../Components/UIControls/CustomButton.jsx';
+import  { Navigate, Link, useNavigate } from 'react-router-dom';
+// import { Link } from "react-router";
 
 const refreshGrid = () => {
     console.log('grid is refreshed');
 };
 
 const Transactions = () => {
+    const navigate = useNavigate();
+
+    const onGridEditBtnClickEvent = (transactionId) => {
+        console.log(transactionId);
+        navigate(`/transaction/${transactionId}`);
+    };
+
     const {transactions, loadingState} = useGetTransactions();
+
+    const redirectToEditButtonColumnTemplate = (props) => {
+        return (<div>
+            <CustomButton text="Edit" onClick={() => {onGridEditBtnClickEvent(props.transactionId)}}></CustomButton>
+            {/* <Link to={`/transaction/${props.transactionId}`}>Edit</Link> */}
+          </div>)
+    };
 
     const columnsDirective = [
         {field: 'TransactionId', headerText: 'TransactionId', textAlign: 'Left', width: '100'},
@@ -20,6 +37,8 @@ const Transactions = () => {
         {field: 'CategoryName', headerText: 'Name', textAlign: 'Left', width: '100'},
         {field: 'Icon', headerText: 'Icon', textAlign: 'Left', width: '100'},
         {field: 'CategoryType', headerText: 'CategoryType', textAlign: 'Left', width: '100'},
+
+        {field: 'Edit', headerText: 'Action', textAlign: 'Center', width: '100', template: redirectToEditButtonColumnTemplate}
     ];
 
 
