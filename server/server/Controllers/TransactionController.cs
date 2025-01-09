@@ -39,7 +39,7 @@ public class TransactionController : ControllerBase
 
 
     
-    public async Task<ActionResult<TransactionReadDto>> Post(TransactionCreateDto createDto)
+    public async Task<ActionResult<TransactionReadDto>> Post([FromBody]TransactionCreateDto createDto)
     {
         if(createDto != null)
         {
