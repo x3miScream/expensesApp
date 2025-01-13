@@ -9,13 +9,33 @@ const useSaveTransaction = () => {
             categoryId,
             transactionDate,
             amount,
-            note
+            note,
+            method
         } = props;
 
-        const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/Transactions`;
+        let url = '';
+        let verb = '';
+
+        switch(method)
+        {
+            case "create":
+                url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/Transactions`;
+                verb = 'POST';
+                break;
+            case "update": 
+                url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/Transactions/${transactionId}`;
+                verb = 'PUT';
+                break;
+            default:
+                url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/Transactions`;
+                verb = 'POST';
+                break;
+                break;
+        }
+         
 
         const fetchObject = {
-            method: 'POST',
+            method: verb,
             headers: {'Content-Type': "application/json"},
             // credentials: 'include',
             mode: 'cors',

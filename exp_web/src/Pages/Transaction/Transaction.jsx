@@ -20,7 +20,11 @@ const TransactionDetails = () => {
 
 
     const onSaveTransactionClick = async () => {
-        await saveTransaction(transaction);
+        await saveTransaction({...transaction, method: 'update'});
+    }
+
+    const onDeleteTransactionClick = async () => {
+        
     }
 
     const getTransactionDetails = async () => {
@@ -75,6 +79,7 @@ const TransactionDetails = () => {
 
         <div className='transaction-details-buttons-container'>
             <CustomButton text="Save" onClick={onSaveTransactionClick}></CustomButton>
+            <CustomButton text="Delete" onClick={onDeleteTransactionClick}></CustomButton>
             <CustomButton text="Back" onClick={onRedirectToTransactionsClick}></CustomButton>
         </div>
     </div>);

@@ -70,6 +70,45 @@ public class TransactionController : ControllerBase
 
 
     [Route("{transactionId}")]
+    [HttpPut(Name = "PutTransaction`")]
+    public async Task<ActionResult<TransactionReadDto>> Put([FromRoute] long transactionId, [FromBody]TransactionCreateDto createDto)
+    {
+        Console.WriteLine(transactionId);
+        Console.WriteLine(createDto);
+
+        if(createDto != null)
+        {
+            Transaction foundTransaction = await _context.Transactions.FindAsync(transactionId);
+
+            if(foundTransaction == null)
+                return BadRequest("No Transaction Found");
+
+            foundTransaction.Amount = createDto.Amount;
+            foundTransaction.Note = createDto.Note;
+            foundTransaction.TransactionDate = createDto.TransactionDate;
+            foundTransaction.CategoryId = createDto.CategoryId;
+
+            _context.Transactions.Update(foundTransaction);
+            _context.SaveChanges();
+
+            TransactionReadDto readDto = new TransactionReadDto(){
+                TransactionId = foundTransaction.TransactionId,
+                CategoryId = foundTransaction.CategoryId,
+                Amount = foundTransaction.Amount,
+                Note = foundTransaction.Note,
+                // Category = newTransaction.Category
+            };
+
+            return Ok(readDto);
+        }
+        else{
+            return BadRequest("No Data Provided");
+        }
+    }
+
+
+    [Route("{transactionId}")]
+    [HttpGet]
     public async Task<ActionResult<TransactionReadDto>> Get([FromRoute]long transactionId)
     {
         if(transactionId != null)
