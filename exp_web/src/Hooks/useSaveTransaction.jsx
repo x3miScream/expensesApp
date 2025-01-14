@@ -1,7 +1,17 @@
 import React, {useState} from 'react';
 
+
 const useSaveTransaction = () => {
     const [loadingState, setLoadingState] = useState(false);
+
+    const createTransaction = async (props) => {
+        await saveTransaction({...props, method: 'create'});
+    };
+
+    const updateTransaction = async (props) => {
+        await saveTransaction({...props, method: 'update'});
+    };
+
 
     const saveTransaction = async (props) => {
         setLoadingState(true);
@@ -69,7 +79,7 @@ const useSaveTransaction = () => {
         setLoadingState(false);
     };
 
-    return {loadingState, saveTransaction};
+    return {loadingState, createTransaction, updateTransaction};
 };
 
 export default useSaveTransaction;

@@ -12,7 +12,7 @@ const TransactionDetails = () => {
     const {transactionId} = useParams();
     const navigate = useNavigate();
     const [transaction, setTransaction] = useState({});
-    const {loadingState, saveTransaction} = useSaveTransaction();
+    const {loadingState, createTransaction, updateTransaction} = useSaveTransaction();
         
     const onRedirectToTransactionsClick = () => {
         navigate(`/transactions`);
@@ -20,7 +20,7 @@ const TransactionDetails = () => {
 
 
     const onSaveTransactionClick = async () => {
-        await saveTransaction({...transaction, method: 'update'});
+        await updateTransaction(transaction);
     }
 
     const onDeleteTransactionClick = async () => {

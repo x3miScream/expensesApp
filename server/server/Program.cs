@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Server.Interfaces;
 using Server.Models;
+using Server.Services;
 
 const string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -24,6 +26,8 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddTransient<IEncryptionService, EncryptionService>();
 
 var app = builder.Build();
 
