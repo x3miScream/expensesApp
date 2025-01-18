@@ -3,18 +3,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.EntityFrameworkCore;
 using server.Dtos.Transaction;
+using Server.Controllers.Base;
 using Server.Models;
 
 namespace server.Controllers;
 
 [ApiController]
 [Route("api/Transactions")]
-public class TransactionController : ControllerBase
+public class TransactionController : ApiBaseController
 {
-    private readonly ApplicationDBContext _context;
-
-    public TransactionController(ApplicationDBContext context) {
-        _context = context;
+    public TransactionController(ApplicationDBContext context, IServiceProvider serviceProvider, IConfiguration appSettings, IHttpContextAccessor httpContextAccessor)
+        : base(context, serviceProvider, appSettings, httpContextAccessor){
     }
 
 
@@ -22,7 +21,7 @@ public class TransactionController : ControllerBase
     [HttpGet(Name = "GetTransactions")]
     public async Task<ActionResult<List<TransactionReadDto>>> Get()
     {
-        List<Transaction> transactions = await _context.Transactions.ToListAsync();
+        List<Transaction> transactions = await _context.Transactions.Where(x => x.ClientId == _currentClientId && x.UserId == _currentUserId).ToListAsync();
         Dictionary<long, Category> categoriesDict = await _context.Categories.ToDictionaryAsync(x => x.CategoryId, x => x);
 
         return Ok(transactions.Select(x => new TransactionReadDto(){
@@ -47,7 +46,13 @@ public class TransactionController : ControllerBase
                 CategoryId = createDto.CategoryId,
                 Amount = createDto.Amount,
                 Note = createDto.Note,
-                TransactionDate = createDto.TransactionDate
+                TransactionDate = createDto.TransactionDate,
+                ClientId = _currentClientId,
+                UserId = _currentUserId,
+                CreatedBy = _currentUserId,
+                CreatedDate = DateTime.Now,
+                UpdatedBy = _currentUserId,
+                UpdatedDate = DateTime.Now
             };
 
             await _context.Transactions.AddAsync(newTransaction);
@@ -78,7 +83,7 @@ public class TransactionController : ControllerBase
 
         if(createDto != null)
         {
-            Transaction foundTransaction = await _context.Transactions.FindAsync(transactionId);
+            Transaction foundTransaction = await _context.Transactions.FirstOrDefaultAsync(x => x.ClientId == _currentClientId && x.UserId == _currentUserId && x.TransactionId == transactionId);
 
             if(foundTransaction == null)
                 return BadRequest("No Transaction Found");
@@ -87,6 +92,8 @@ public class TransactionController : ControllerBase
             foundTransaction.Note = createDto.Note;
             foundTransaction.TransactionDate = createDto.TransactionDate;
             foundTransaction.CategoryId = createDto.CategoryId;
+            foundTransaction.UpdatedBy = _currentUserId;
+            foundTransaction.UpdatedDate = DateTime.Now;
 
             _context.Transactions.Update(foundTransaction);
             _context.SaveChanges();
@@ -113,14 +120,14 @@ public class TransactionController : ControllerBase
     {
         if(transactionId != null)
         {
-            Transaction foundTransaction = await _context.Transactions.FindAsync(transactionId);
+            Transaction foundTransaction = await _context.Transactions.FirstOrDefaultAsync(x => x.ClientId == _currentClientId && x.UserId == _currentUserId && x.TransactionId == transactionId);
 
             if(foundTransaction == null)
             {
                 return BadRequest("No Transaction Found");
             }
 
-            Category category = await _context.Categories.FindAsync(foundTransaction.CategoryId);
+            Category category = await _context.Categories.FirstOrDefaultAsync(x => x.ClientId == _currentClientId && x.CategoryId == foundTransaction.CategoryId);
 
             if(category == null)
             {
@@ -152,7 +159,7 @@ public class TransactionController : ControllerBase
     {
         if(transactionId != null)
         {
-            Transaction foundTransaction = await _context.Transactions.FindAsync(transactionId);
+            Transaction foundTransaction = await _context.Transactions.FirstOrDefaultAsync(x => x.ClientId == _currentClientId && x.UserId == _currentUserId && x.TransactionId == transactionId);
 
             if(foundTransaction == null)
             {

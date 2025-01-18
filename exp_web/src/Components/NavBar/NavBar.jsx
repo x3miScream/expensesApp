@@ -2,8 +2,10 @@ import React, {useState, useEffect} from 'react';
 import {Link} from 'react-router-dom'
 import CustomButton from '../UIControls/CustomButton.jsx';
 import './NavBar.css';
+import useLogout from '../../Hooks/useLogout.jsx';
 
 const NavBar = () => {
+    const {loadingState, logout} = useLogout();
     const [isClicked, setIsClicked] = useState(false);
     const [button, setButton] = useState(false);
     const [menuLinks, setMenuLinks] = useState([
@@ -18,24 +20,19 @@ const NavBar = () => {
         const fetchObject = {
             method: verb,
             headers: {'Content-Type': "application/json"},
-            // credentials: 'include',
-            mode: 'cors'
+            credentials: 'include',
+            mode: 'cors',
         };
 
         try{
             const res = await fetch(url, fetchObject);
 
-            console.log(res);
-
             const data = await res.json();
-
-            console.log(data);
 
             if(data.error){
                 throw new Error(data.error);
             }
             else{
-                console.log(data);
                 setMenuLinks(data);
             }
         }
@@ -90,7 +87,8 @@ const NavBar = () => {
                             </ul>
                         }
 
-                    {button && <CustomButton buttonStyle='btn--outline' >SIGN UP</CustomButton>}
+                    {button && <CustomButton buttonStyle='btn--outline' text='Sing Up'></CustomButton>}
+                    {!button && <CustomButton te buttonStyle='btn--outline' text='Sign Out' onClick={logout}></CustomButton>}
                 </div>
             </nav>
         </>

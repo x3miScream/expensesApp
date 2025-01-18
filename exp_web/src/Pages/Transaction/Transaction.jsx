@@ -5,14 +5,18 @@ import CustomDatePicker from '../../Components/UIControls/CustomDatePicker.jsx';
 import CustomButton from '../../Components/UIControls/CustomButton.jsx';
 import CustomTextBox from '../../Components/UIControls/CustomTextBox.jsx';
 import useSaveTransaction from '../../Hooks/useSaveTransaction.jsx';
+import useGetDropDownListData from '../../Hooks/useGetDropDownListData.jsx';
 
 import './Transaction.css';
+import CustomDropDown from '../../Components/UIControls/CustomDropDown.jsx';
 
 const TransactionDetails = () => {
     const {transactionId} = useParams();
+    const {categoriesDDLDataSource, setCategoriesDDLDataSource} = useState([]);
     const navigate = useNavigate();
     const [transaction, setTransaction] = useState({});
     const {loadingState, createTransaction, updateTransaction} = useSaveTransaction();
+    const {ddlLoadingState, getDropDownList} = useGetDropDownListData();
         
     const onRedirectToTransactionsClick = () => {
         navigate(`/transactions`);
@@ -28,8 +32,12 @@ const TransactionDetails = () => {
     }
 
     const getTransactionDetails = async () => {
+        const ddl = getDropDownList('Category');
+
+        console.log(ddl);
+
         const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/Transactions/${transactionId}`;
-        const fetchObject = { method: 'GET' };
+        const fetchObject = { method: 'GET', credentials: 'include', mode: 'cors' };
 
         try{
             const res = fetch(url, fetchObject)
@@ -76,6 +84,8 @@ const TransactionDetails = () => {
                 onChange={(e) => setTransaction({...transaction, note: e.target.value})}
             ></CustomTextBox>
         </div>
+
+        {ddlLoadingState ? <CustomDropDown></CustomDropDown> : ''}
 
         <div className='transaction-details-buttons-container'>
             <CustomButton text="Save" onClick={onSaveTransactionClick}></CustomButton>

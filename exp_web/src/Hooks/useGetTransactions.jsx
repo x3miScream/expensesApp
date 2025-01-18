@@ -8,7 +8,12 @@ const useGetTransactions = () => {
         setLoadingState(true);
 
         const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/Transactions`;
-        const fetchObject = { method: 'GET' };
+        const fetchObject = 
+        {
+            method: 'GET',
+            credentials: 'include',
+            mode: 'cors',
+        };
 
         try{
             const res = fetch(url, fetchObject)

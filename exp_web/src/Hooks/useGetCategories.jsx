@@ -11,10 +11,10 @@ const useGetCategories = () => {
             const res = fetch(
                 `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/Categories`,
                 {
-                    method: 'GET'
-                    // headers: {'Content-Type': "application/json"},
-                    // credentials: 'include',
-                    // mode: 'cors'
+                    method: 'GET',
+                    headers: {'Content-Type': "application/json"},
+                    credentials: 'include',
+                    mode: 'cors'
                 }
             ).then(res => res.json())
             .then(data => setCategories(data));

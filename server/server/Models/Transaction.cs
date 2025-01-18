@@ -1,15 +1,20 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Server.Models.Base;
 
 namespace Server.Models{
     [Table("Transactions")]
-    public class Transaction{
+    public class Transaction : UserBaseModel{
         [Key]
         public long TransactionId {get;set;}
 
         
         public long CategoryId {get;set;}
         public Category? Category {get;set;}
+
+
+        public long? SubCategoryId {get;set;}
+        public SubCategory? SubCategory {get;set;}
         
         
         [Column(TypeName = "decimal(18,2)")]

@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Server.Models.Base;
 
 namespace Server.Models;
 
 [Table("Users")]
-public class User{
+public class User : BaseModel{
     [Key]
     public long UserId {get;set;}
 

@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Server.Models.Base;
 
 namespace Server.Models{
     [Table("Categories")]
-    public class Category{
+    public class Category : BaseModel{
         [Key]
         public long CategoryId {get;set;}
         [Column(TypeName = "nvarchar(50)")]

@@ -13,7 +13,6 @@ const Transactions = () => {
     const navigate = useNavigate();
 
     const onGridEditBtnClickEvent = (transactionId) => {
-        console.log(transactionId);
         navigate(`/transaction/${transactionId}`);
     };
 

@@ -22,8 +22,8 @@ public class UserController : ApiBaseController{
         }
     }
 
-    public UserController(ApplicationDBContext context, IServiceProvider serviceProvider)
-        : base(context, serviceProvider) {
+    public UserController(ApplicationDBContext context, IServiceProvider serviceProvider, IConfiguration appSettings, IHttpContextAccessor httpContextAccessor)
+        : base(context, serviceProvider, appSettings, httpContextAccessor) {
     }
 
     public async Task<ActionResult<UserReadDto>> Post([FromBody]UserCreateDto createDto)
@@ -43,7 +43,12 @@ public class UserController : ApiBaseController{
                 UserName = createDto.UserName,
                 UserLoginId = createDto.UserLoginId,
                 Password = encryptionService.GenerateHash(createDto.Password, salt),
-                Salt = salt
+                Salt = salt,
+                ClientId = _currentClientId,
+                CreatedBy = _currentUserId,
+                CreatedDate = DateTime.Now,
+                UpdatedBy = _currentUserId,
+                UpdatedDate = DateTime.Now
             };
 
             await _context.Users.AddAsync(user);

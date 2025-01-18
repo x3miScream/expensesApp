@@ -1,4 +1,4 @@
-import React, {createContext, useState, useContext} from 'react';
+import React, {createContext, useState, useContext, useEffect} from 'react';
 
 const AuthContext = createContext();
 
@@ -6,19 +6,51 @@ const useAuthContext = () => {
     return useContext(AuthContext);
 };
 
-const getAuthUser = async () => {
-    
+const getAuthUser = (callBackSetUser, callBackSetReady) => {
+    const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/Auth`;
+        const fetchObject = {
+            method: 'GET',
+            // headers: {'Content-Type': "application/json"},
+            credentials: 'include',
+            mode: 'cors'
+        };
+
+        try{
+            fetch(url, fetchObject)
+                .then(res => res.json())
+                .then(data => {
+                    callBackSetUser(data);
+                    callBackSetReady(true);
+                }
+            );
+        }
+        catch(error){
+            console.log(`Failed to fetch auth login with error: ${error}`);
+        }
 };
 
 const AuthContextProvider = ({children}) => {
-    const [authUser, setAuthUser] = useState({});
+    const [authUser, setAuthUser] = useState(undefined);
+    const [ready, setReady] = useState(false);
 
-    return(<AuthContext.Provider value={{authUser, setAuthUser}}>
+
+    useEffect(() => {
+        if(!authUser)
+        {
+            getAuthUser(setAuthUser, setReady);
+        }
+        else
+        {
+            setReady(true);
+        }
+    }, []);
+
+    return(<AuthContext.Provider value={{authUser, setAuthUser, ready}}>
         {children}
     </AuthContext.Provider>);
 };
 
-export default {
+export {
     AuthContext,
     useAuthContext,
     AuthContextProvider

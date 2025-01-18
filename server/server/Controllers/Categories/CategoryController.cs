@@ -2,18 +2,17 @@ using System.IO.Compression;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.EntityFrameworkCore;
+using Server.Controllers.Base;
 using Server.Models;
 
-namespace server.Controllers;
+namespace server.Controllers.Categories;
 
 [ApiController]
 [Route("api/Categories")]
-public class CategoryController : ControllerBase
+public class CategoryController : ApiBaseController
 {
-    private readonly ApplicationDBContext _context;
-
-    public CategoryController(ApplicationDBContext context) {
-        _context = context;
+    public CategoryController(ApplicationDBContext context, IServiceProvider serviceProvider, IConfiguration appSettings, IHttpContextAccessor httpContextAccessor)
+        : base(context, serviceProvider, appSettings, httpContextAccessor){
     }
 
 
@@ -42,7 +41,12 @@ public class CategoryController : ControllerBase
                 CategoryCode = createDto.CategoryCode,
                 CategoryName = createDto.CategoryName,
                 Icon = createDto.Icon,
-                CategoryType = createDto.CategoryType
+                CategoryType = createDto.CategoryType,
+                ClientId = _currentClientId,
+                CreatedBy = _currentUserId,
+                CreatedDate = DateTime.Now,
+                UpdatedBy = _currentUserId,
+                UpdatedDate = DateTime.Now
             };
 
             await _context.Categories.AddAsync(newCategory);
