@@ -1,17 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.Enums;
+using Server.Controllers.Base;
+using Server.Dtos.DropDownList;
 using Server.Models;
 
 namespace server.Controllers;
 
 [ApiController]
 [Route("api/DropDownLists")]
-public class DropDownListController: ControllerBase{
-    private readonly ApplicationDBContext _context;
+public class DropDownListController: ApiBaseController{
 
-    public DropDownListController(ApplicationDBContext context) {
-        _context = context;
+    public DropDownListController(ApplicationDBContext context, IServiceProvider serviceProvider, IConfiguration appSettings, IHttpContextAccessor httpContextAccessor)
+        : base(context, serviceProvider, appSettings, httpContextAccessor){
     }
 
 
@@ -19,18 +20,18 @@ public class DropDownListController: ControllerBase{
     [Route("{dropDownListType}")]
     public async Task<ActionResult<Dictionary<long, string>>> GetCategoriesDropDownList([FromRoute]DropDownListType dropDownListType)
     {
-        Dictionary<long, string> categoriesDDLDict = new Dictionary<long, string>();
+        List<DropDownListItemDto> dropDownListItems = new List<DropDownListItemDto>();
         
         switch(dropDownListType)
         {
             case DropDownListType.Category:
-                categoriesDDLDict = await _context.Categories.ToDictionaryAsync(x => x.CategoryId, x => x.CategoryName);
+                dropDownListItems = await _context.Categories.Where(x => x.ClientId == _currentClientId).Select(x => new DropDownListItemDto(x.CategoryId, x.CategoryName)).ToListAsync();
             break;
             default:
-                categoriesDDLDict = await _context.Categories.ToDictionaryAsync(x => x.CategoryId, x => x.CategoryName);
+                dropDownListItems = await _context.Categories.Where(x => x.ClientId == _currentClientId).Select(x => new DropDownListItemDto(x.CategoryId, x.CategoryName)).ToListAsync();
             break;
         }
 
-        return Ok(categoriesDDLDict);
+        return Ok(dropDownListItems);
     }
 }

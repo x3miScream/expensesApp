@@ -12,7 +12,8 @@ import CustomDropDown from '../../Components/UIControls/CustomDropDown.jsx';
 
 const TransactionDetails = () => {
     const {transactionId} = useParams();
-    const {categoriesDDLDataSource, setCategoriesDDLDataSource} = useState([]);
+    const [categoriesDDLDataSource, setCategoriesDDLDataSource] = useState([]);
+    const categoryDropdownListFields = { text: 'value', value: 'key' };
     const navigate = useNavigate();
     const [transaction, setTransaction] = useState({});
     const {loadingState, createTransaction, updateTransaction} = useSaveTransaction();
@@ -32,10 +33,6 @@ const TransactionDetails = () => {
     }
 
     const getTransactionDetails = async () => {
-        const ddl = getDropDownList('Category');
-
-        console.log(ddl);
-
         const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/Transactions/${transactionId}`;
         const fetchObject = { method: 'GET', credentials: 'include', mode: 'cors' };
 
@@ -51,23 +48,40 @@ const TransactionDetails = () => {
         }
     };
 
-    useEffect(() => {getTransactionDetails()}, []);
+    const getDropDownListDataSource = async () => {
+        const categoriesDdlDataSource = await getDropDownList('Category', setCategoriesDDLDataSource);
+        console.log('categoriesDdlDataSource');
+        console.log(categoriesDdlDataSource);
+    };
+
+    const initializePage = async () => {
+        await getTransactionDetails();
+        await getDropDownListDataSource();
+    };
+
+    useEffect(() => {initializePage()}, []);
+
+    const value = { text: 'Item 1', id: 1};
 
     return(<div>
         <div className='transaction-details-container'>
             <label>Transaction Id</label>
             <CustomTextBox value={transaction.transactionId}></CustomTextBox>
 
-            <label>Category Id</label>
-            <CustomTextBox value={transaction.categoryId}></CustomTextBox>
+            {/* <label>Category Id</label>
+            <CustomTextBox value={transaction.categoryId}></CustomTextBox> */}
+            
+            <label>Category</label>
+            {ddlLoadingState ? <CustomDropDown dataSource={categoriesDDLDataSource} fields={categoryDropdownListFields} value={transaction.categoryId}
+                onChange={(e) => {setTransaction({...transaction, categoryId: e.target.value})}}></CustomDropDown> : ''}
 
             <label>Category Type</label>
             <CustomTextBox value={transaction.categoryType}></CustomTextBox>
-
+{/* 
             <label>Category</label>
             <CustomTextBox value={transaction.categoryName}
                 onChange={(e) => setTransaction({...transaction, categoryName: e.target.value})}
-            ></CustomTextBox>
+            ></CustomTextBox> */}
 
             <label>Transaction Date</label>
             <CustomDatePicker id="TransactionDate" placeholder="Enter Transaction Date" value={transaction.transactionDate}
@@ -84,8 +98,6 @@ const TransactionDetails = () => {
                 onChange={(e) => setTransaction({...transaction, note: e.target.value})}
             ></CustomTextBox>
         </div>
-
-        {ddlLoadingState ? <CustomDropDown></CustomDropDown> : ''}
 
         <div className='transaction-details-buttons-container'>
             <CustomButton text="Save" onClick={onSaveTransactionClick}></CustomButton>

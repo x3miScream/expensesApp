@@ -1,5 +1,5 @@
 import React from 'react';
-import {BrowserRouter, Routes, Route} from 'react-router-dom';
+import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
 
 import Categories from '../../Pages/Categories/Categories.jsx';
 import Transactions from '../../Pages/Transactions/Transactions.jsx';
@@ -14,21 +14,21 @@ const ExpensesApp = () => {
     const {authUser, ready} = useAuthContext();
 
     return(<div className='expenses-app-container'>
-      {ready ? `Hi ${authUser.userName}` : 'Hi Gues'}
+      {ready ? `Hi ${authUser.userName}` : 'Hi Guest'}
         <BrowserRouter>
-        <Navbar></Navbar>
+        {authUser ? <Navbar></Navbar> : ''}
         <Routes>
-          <Route path='/' element={<Categories />}></Route>
-          <Route path='/login' element={<Login />}></Route>
+          <Route path='/' element={ (authUser ? <Categories /> : <Navigate to='/login'></Navigate>) }></Route>
+          <Route path='/login' element={(authUser ? <Navigate to='/transactions'></Navigate> : <Login />)}></Route>
           
-          <Route path='/categories' element={<Categories />}></Route>
-          <Route path='/category' element={<Category />}>
-            <Route path=':categoryId' element={<Category />}></Route>
+          <Route path='/categories' element={(authUser ? <Categories /> : <Navigate to='/login'></Navigate>)}></Route>
+          <Route path='/category' element={(authUser ? <Category /> : <Navigate to='/login'></Navigate>)}>
+            <Route path=':categoryId' element={(authUser ? <Category /> : <Navigate to='/login'></Navigate>)}></Route>
           </Route>
 
-          <Route path='/transactions' element={<Transactions />}></Route>
-          <Route path='/transaction' element={<Transaction />}>
-            <Route path=':transactionId' element={<Transaction />}></Route>
+          <Route path='/transactions' element={(authUser ? <Transactions /> : <Navigate to='/login'></Navigate>)}></Route>
+          <Route path='/transaction' element={(authUser ? <Transaction /> : <Navigate to='/login'></Navigate>)}>
+            <Route path=':transactionId' element={(authUser ? <Transaction /> : <Navigate to='/login'></Navigate>)}></Route>
           </Route>
         </Routes>
       </BrowserRouter>
