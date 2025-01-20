@@ -17,6 +17,7 @@ const useSaveTransaction = () => {
         setLoadingState(true);
         const {transactionId,
             categoryId,
+            subCategoryId,
             transactionDate,
             amount,
             note,
@@ -52,6 +53,7 @@ const useSaveTransaction = () => {
             body: JSON.stringify({
                 transactionId,
                 categoryId,
+                subCategoryId,
                 transactionDate,
                 amount,
                 note

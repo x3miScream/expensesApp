@@ -8,6 +8,7 @@ namespace Server.Models
         }
 
         public DbSet<Category> Categories {get;set;}
+        public DbSet<SubCategory> SubCategories {get;set;}
         public DbSet<Transaction> Transactions {get;set;}
         public DbSet<User> Users {get;set;}
     }

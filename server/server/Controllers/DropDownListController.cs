@@ -18,7 +18,7 @@ public class DropDownListController: ApiBaseController{
 
     [HttpGet(Name = "GetCategoriesDropDownList")]
     [Route("{dropDownListType}")]
-    public async Task<ActionResult<Dictionary<long, string>>> GetCategoriesDropDownList([FromRoute]DropDownListType dropDownListType)
+    public async Task<ActionResult<Dictionary<long, string>>> GetCategoriesDropDownList([FromRoute]DropDownListType dropDownListType, long? parentId)
     {
         List<DropDownListItemDto> dropDownListItems = new List<DropDownListItemDto>();
         
@@ -26,6 +26,9 @@ public class DropDownListController: ApiBaseController{
         {
             case DropDownListType.Category:
                 dropDownListItems = await _context.Categories.Where(x => x.ClientId == _currentClientId).Select(x => new DropDownListItemDto(x.CategoryId, x.CategoryName)).ToListAsync();
+            break;
+            case DropDownListType.SubCategory:
+                dropDownListItems = await _context.SubCategories.Where(x => x.ClientId == _currentClientId && x.CategoryId == parentId.GetValueOrDefault()).Select(x => new DropDownListItemDto(x.SubCategoryId, x.SubCategoryName)).ToListAsync();
             break;
             default:
                 dropDownListItems = await _context.Categories.Where(x => x.ClientId == _currentClientId).Select(x => new DropDownListItemDto(x.CategoryId, x.CategoryName)).ToListAsync();

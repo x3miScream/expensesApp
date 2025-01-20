@@ -44,6 +44,7 @@ public class TransactionController : ApiBaseController
         {
             Transaction newTransaction = new Transaction(){
                 CategoryId = createDto.CategoryId,
+                SubCategoryId = createDto.SubCategoryId,
                 Amount = createDto.Amount,
                 Note = createDto.Note,
                 TransactionDate = createDto.TransactionDate,
@@ -92,6 +93,7 @@ public class TransactionController : ApiBaseController
             foundTransaction.Note = createDto.Note;
             foundTransaction.TransactionDate = createDto.TransactionDate;
             foundTransaction.CategoryId = createDto.CategoryId;
+            foundTransaction.SubCategoryId = createDto.SubCategoryId;
             foundTransaction.UpdatedBy = _currentUserId;
             foundTransaction.UpdatedDate = DateTime.Now;
 

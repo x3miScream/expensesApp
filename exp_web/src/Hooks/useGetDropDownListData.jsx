@@ -8,8 +8,11 @@ const useGetDropDownListData = () => {
         {"category": "Category"}
     ]
 
-    const getDropDownList = async (dropDownListType, setDropDownListCallBack) => {
-        const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/DropDownLists/${dropDownListType}`;
+    const getDropDownList = async (dropDownListType, setDropDownListCallBack, customParam) => {
+        const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/DropDownLists/${dropDownListType}${(customParam ? `?${customParam}` : ``)}`;
+
+        console.log(url)
+
         const fetchObject = {
             method: 'GET',
             credentials: 'include',

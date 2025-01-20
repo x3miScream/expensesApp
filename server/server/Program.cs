@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using server.Middleware;
 using Server.Interfaces;
 using Server.Middleware;
 using Server.Models;
@@ -31,6 +32,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<GlobalExceptionMiddleware>();
 builder.Services.AddScoped<AuthMiddleware>();
 
 builder.Services.AddTransient<IEncryptionService, EncryptionService>();
@@ -53,6 +55,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<AuthMiddleware>();
 
 app.MapControllers();
