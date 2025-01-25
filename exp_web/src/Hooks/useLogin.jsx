@@ -21,12 +21,7 @@ const useLogin = () => {
 
         try{
             const res = await fetch(url, fetchObject);
-
-            // console.log(res);
-
             const data = await res.json();
-
-            // console.log(data);
         }
         catch(error){
             console.log(`Failed to fetch auth login with error: ${error}`);
@@ -37,7 +32,6 @@ const useLogin = () => {
     const handleInputErrors = ({userLoginId, password}) => {
         if(!userLoginId || !password){
             console.log("Please fill in all fields.");
-            // toast.error("Please fill in all fields.");
             return false;
         }
 

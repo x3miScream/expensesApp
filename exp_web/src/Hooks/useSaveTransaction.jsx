@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import {toast} from 'react-hot-toast';
 
 
 const useSaveTransaction = () => {
@@ -12,6 +13,30 @@ const useSaveTransaction = () => {
         await saveTransaction({...props, method: 'update'});
     };
 
+    const deleteTransaction = async (transactionId, callBack) => {
+        setLoadingState(true);
+        const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/Transactions/${transactionId}`;
+        const verb = 'DELETE';
+
+        const fetchObject = {
+            method: verb,
+            headers: {'Content-Type': "application/json"},
+            credentials: 'include',
+            mode: 'cors'
+        };
+
+        try{
+            const res = await fetch(url, fetchObject);
+            setLoadingState(false);
+            callBack();
+        }
+        catch(error)
+        {
+            console.log(error);
+        }
+
+        setLoadingState(false);
+    };
 
     const saveTransaction = async (props) => {
         setLoadingState(true);
@@ -21,6 +46,7 @@ const useSaveTransaction = () => {
             transactionDate,
             amount,
             note,
+            callBack,
             method
         } = props;
 
@@ -63,15 +89,13 @@ const useSaveTransaction = () => {
         try{
             const res = await fetch(url, fetchObject);
 
-            console.log(res);
-
             const data = await res.json();
-
-            console.log(data);
 
             if(data.error){
                 throw new Error(data.error);
             }
+
+            callBack();
         }
         catch(error)
         {
@@ -81,7 +105,7 @@ const useSaveTransaction = () => {
         setLoadingState(false);
     };
 
-    return {loadingState, createTransaction, updateTransaction};
+    return {loadingState, createTransaction, updateTransaction, deleteTransaction};
 };
 
 export default useSaveTransaction;

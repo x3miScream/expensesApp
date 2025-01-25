@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -109,8 +110,16 @@ public class AuthController : ApiBaseController{
 
     [HttpDelete(Name = "Logout")]
     public async Task<ActionResult<string>> Logout(){
-        Response.Cookies.Delete(_appsettings["Authentication:AuthJWTTokenName"]?.ToString());
-        Console.WriteLine(_appsettings["Authentication:AuthJWTTokenName"]?.ToString());
+
+        var cookieOptions = new CookieOptions(){
+            SameSite = SameSiteMode.None,
+            Expires = DateTime.UtcNow.AddDays(7),
+            HttpOnly = false,
+            Secure = true
+        };
+
+        Response.Cookies.Delete(_appsettings["Authentication:AuthJWTTokenName"]?.ToString(), cookieOptions);
+        Console.WriteLine(JsonSerializer.Serialize(Response.Cookies));
 
         return Ok("Logout successful");
 

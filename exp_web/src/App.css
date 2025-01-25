@@ -1,9 +1,9 @@
 
 
-/* body{
-  background-color: #12161d;
-  color: #fff;
-} */
+body{
+  height: 100%;
+  /* background-color: beige; */
+}
 
 .App {
   text-align: center;

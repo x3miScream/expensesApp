@@ -11,7 +11,7 @@ namespace server.Dtos.Transaction
         public string CategoryCode {get;set;} = string.Empty;
         public string CategoryName {get;set;} = string.Empty;
 
-        public long SubCategoryId {get;set;}
+        public long? SubCategoryId {get;set;}
         public string SubCategoryCode {get;set;} = string.Empty;
         public string SubCategoryName {get;set;} = string.Empty;
 

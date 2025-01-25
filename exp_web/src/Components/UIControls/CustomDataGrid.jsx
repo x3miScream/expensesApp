@@ -22,7 +22,7 @@ var CustomDataGrid = (props) => {
                     <ColumnsDirective>
                         {columnsSettings.map((item, index) => {
                             return <ColumnDirective key={index} field={item.field} headerText={item.headerText}
-                                textAlign={item.textAlign} width={item.width} template={item.template}>
+                                textAlign={item.textAlign} width={item.width} template={item.template} visible={item.visible} type={item.type} format={item.format}>
                             </ColumnDirective>
                         })}
                     </ColumnsDirective>

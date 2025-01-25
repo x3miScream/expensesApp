@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 
 const useGetDropDownListData = () => {
-    const [ddlLoadingState, setDdlLoadingState] = useState(false);
+    const [ddlLoadingState, setDdlLoadingState] = useState(true);
     const [dropDownListData, setDropDownListData] = useState([]);
 
     const ddlTypeMap = [
@@ -9,9 +9,8 @@ const useGetDropDownListData = () => {
     ]
 
     const getDropDownList = async (dropDownListType, setDropDownListCallBack, customParam) => {
+        setDdlLoadingState(true);
         const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/DropDownLists/${dropDownListType}${(customParam ? `?${customParam}` : ``)}`;
-
-        console.log(url)
 
         const fetchObject = {
             method: 'GET',
@@ -22,11 +21,9 @@ const useGetDropDownListData = () => {
         try{
             const res = await fetch(url, fetchObject);
             const data = await res.json();
-            console.log('DDL');
-            console.log(data);
             setDropDownListData(data);
             setDropDownListCallBack(data);
-            setDdlLoadingState(true);
+            setDdlLoadingState(false);
         }
         catch(error){
             console.log(`Failed to logout: ${error}`);

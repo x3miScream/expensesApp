@@ -1,0 +1,28 @@
+.category-selection-card{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+
+    background-color: beige;
+    height: 10rem;
+    width: 10rem;
+    border-radius: 10%;
+    text-align: center;
+
+    cursor: pointer;
+}
+
+.category-selection-card:hover{
+    /* min-height: 11rem;
+    min-width: 11rem; */
+    transform: scale(1.05); 
+}
+
+.category-selection-icon{
+    flex: 2;
+}
+
+.category-selection-info{
+    flex: 1;
+}

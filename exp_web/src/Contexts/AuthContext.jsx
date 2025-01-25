@@ -6,7 +6,7 @@ const useAuthContext = () => {
     return useContext(AuthContext);
 };
 
-const getAuthUser = (callBackSetUser, callBackSetReady) => {
+const getAuthUser = async (callBackSetUser, callBackSetReady) => {
     const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/Auth`;
         const fetchObject = {
             method: 'GET',
@@ -16,13 +16,20 @@ const getAuthUser = (callBackSetUser, callBackSetReady) => {
         };
 
         try{
-            fetch(url, fetchObject)
-                .then(res => res.json())
-                .then(data => {
-                    callBackSetUser(data);
-                    callBackSetReady(true);
-                }
-            );
+            let res = await fetch(url, fetchObject);
+            console.log(res);
+
+            if(res.status == 200)
+            {
+                let data = await res.json();
+
+                callBackSetUser(data);
+                callBackSetReady(true);
+            }
+            else
+            {
+                callBackSetReady(true);
+            }
         }
         catch(error){
             console.log(`Failed to fetch auth login with error: ${error}`);

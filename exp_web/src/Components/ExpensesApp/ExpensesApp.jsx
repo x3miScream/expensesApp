@@ -9,12 +9,15 @@ import Login from '../../Pages/Login/Login.jsx';
 import './ExpensesApp.css';
 import {useAuthContext} from '../../Contexts/AuthContext.jsx';
 import Category from '../../Pages/Category/Category.jsx';
+import AddTransactionFloatingButtons from '../AddTransactionFloatingButtons/AddTransactionFloatingButtons.jsx';
+import {Toaster} from 'react-hot-toast';
 
 const ExpensesApp = () => {
     const {authUser, ready} = useAuthContext();
-
+    console.log(authUser)
+    console.log(ready)
     return(<div className='expenses-app-container'>
-      {ready ? `Hi ${authUser.userName}` : 'Hi Guest'}
+      {(ready && authUser) ? `Hi ${authUser.userName}` : 'Hi Guest'}
         <BrowserRouter>
         {authUser ? <Navbar></Navbar> : ''}
         <Routes>
@@ -28,10 +31,16 @@ const ExpensesApp = () => {
 
           <Route path='/transactions' element={(authUser ? <Transactions /> : <Navigate to='/login'></Navigate>)}></Route>
           <Route path='/transaction' element={(authUser ? <Transaction /> : <Navigate to='/login'></Navigate>)}>
-            <Route path=':transactionId' element={(authUser ? <Transaction /> : <Navigate to='/login'></Navigate>)}></Route>
+            <Route path=':transactionId' element={(authUser ? <Transaction /> : <Navigate to='/login'></Navigate>)}>
+              <Route path=':categoryId' element={(authUser ? <Transaction /> : <Navigate to='/login'></Navigate>)}></Route>
+            </Route>
           </Route>
         </Routes>
+
+        {(ready && authUser) ? <AddTransactionFloatingButtons></AddTransactionFloatingButtons> : ''}
       </BrowserRouter>
+
+      <Toaster></Toaster>
     </div>);
 };
 
