@@ -18,9 +18,9 @@ public class CategoryController : ApiBaseController
 
 
     [HttpGet(Name = "GetCategories")]
-    public async Task<ActionResult<List<CategoryReadDto>>> Get()
+    public async Task<ActionResult<List<CategoryReadDto>>> GetAllCategories()
     {
-        List<Category> categories = await _context.Categories.ToListAsync();
+        List<Category> categories = await _context.Categories.Where(x => x.ClientId == _currentClientId).ToListAsync();
 
         return Ok(categories.Select(x => new CategoryReadDto(){
             CategoryId = x.CategoryId,
@@ -32,7 +32,37 @@ public class CategoryController : ApiBaseController
     }
 
 
-    
+    [Route("{categoryId}")]
+    // [HttpGet(Name = "GetCategoryById")]
+    [HttpGet]
+    public async Task<ActionResult<CategoryReadDto>> GetSingleCategory([FromRoute]long categoryId)
+    {
+        if(categoryId != null)
+        {
+            Category foundCategory = await _context.Categories.Where(x => x.ClientId == _currentClientId && x.CategoryId == categoryId).FirstOrDefaultAsync();
+
+            if(foundCategory == null)
+            {
+                return BadRequest("No Category Found");
+            }
+
+            CategoryReadDto readDto = new CategoryReadDto(){
+                CategoryId = foundCategory.CategoryId,
+                CategoryCode = foundCategory.CategoryCode,
+                CategoryName = foundCategory.CategoryName,
+                Icon = foundCategory.Icon,
+                CategoryType = foundCategory.CategoryType
+            };
+
+            return Ok(readDto);
+        }
+        else{
+            return BadRequest("No Data Provided");
+        }
+    }
+
+
+    [HttpPost("PostCategory")]
     public async Task<ActionResult<CategoryReadDto>> Post(CategoryCreateDto createDto)
     {
         if(createDto != null)
@@ -69,22 +99,40 @@ public class CategoryController : ApiBaseController
 
 
     [Route("{categoryId}")]
-    public async Task<ActionResult<CategoryReadDto>> Get([FromRoute]long categoryId)
+    [HttpPut(Name = "PutCategory`")]
+    public async Task<ActionResult<CategoryReadDto>> Put([FromRoute] long categoryId, [FromBody]CategoryCreateDto createDto)
     {
-        if(categoryId != null)
+        if(createDto != null)
         {
-            Category foundCategory =await _context.Categories.FindAsync(categoryId);
+            List<string> errors = new List<string>();
+
+            if(!await _context.Categories.AnyAsync(x => x.ClientId == _currentClientId && x.CategoryId == categoryId))
+            {
+                errors.Add("Category does not exist");
+            }
+
+            if(errors.Any())
+                return BadRequest(errors);
+            
+            Category foundCategory = await _context.Categories.FirstOrDefaultAsync(x => x.ClientId == _currentClientId && x.CategoryId == categoryId);
 
             if(foundCategory == null)
-            {
-                return BadRequest("No Category Found");
-            }
+                return BadRequest("No Transaction Found");
+
+            foundCategory.CategoryCode = createDto.CategoryCode;
+            foundCategory.CategoryName = createDto.CategoryName;
+            foundCategory.CategoryType = createDto.CategoryType;
+            
+            foundCategory.UpdatedBy = _currentUserId;
+            foundCategory.UpdatedDate = DateTime.Now;
+
+            _context.Categories.Update(foundCategory);
+            _context.SaveChanges();
 
             CategoryReadDto readDto = new CategoryReadDto(){
                 CategoryId = foundCategory.CategoryId,
                 CategoryCode = foundCategory.CategoryCode,
                 CategoryName = foundCategory.CategoryName,
-                Icon = foundCategory.Icon,
                 CategoryType = foundCategory.CategoryType
             };
 

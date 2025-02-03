@@ -14,8 +14,6 @@ import {Toaster} from 'react-hot-toast';
 
 const ExpensesApp = () => {
     const {authUser, ready} = useAuthContext();
-    console.log(authUser)
-    console.log(ready)
     return(<div className='expenses-app-container'>
       {(ready && authUser) ? `Hi ${authUser.userName}` : 'Hi Guest'}
         <BrowserRouter>

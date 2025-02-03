@@ -1,21 +1,32 @@
-import React from 'react';
+import React, {useLayoutEffect} from 'react';
 import {GridComponent, 
     ColumnsDirective, 
     ColumnDirective,
     Page,
+    Toolbar,
+    Edit,
     Inject} from '@syncfusion/ej2-react-grids';
-import data from '../../Data/GridDataSource.json';
 
 var CustomDataGrid = (props) => {
-    let {dataSource, columnsDirective} = props;
+    let {dataSource, allowEditing, allowAdding, allowDeleting, toolbarOptions, columnsDirective} = props;
 
-    data = dataSource;
+    const editOptions = { 
+        allowEditing: allowEditing === undefined ? false : allowEditing,
+        allowAdding: allowAdding === undefined ? false : allowAdding,
+        allowDeleting: allowDeleting === undefined ? false : allowDeleting
+    };
+
+    const data = dataSource;
+
     let columnsSettings = columnsDirective === undefined ? [] : columnsDirective;
 
     return(
         <GridComponent dataSource={data}
             allowPaging={true}
-            pageSettings={{pageSize: 10 }}>
+            pageSettings={{pageSize: 10 }}
+            editSettings={editOptions}
+            toolbar={toolbarOptions === undefined ? [''] : toolbarOptions}
+            >
             
                 {columnsSettings?.length === 0 ? <></>
                 : 
@@ -29,7 +40,7 @@ var CustomDataGrid = (props) => {
                 }
             
 
-            <Inject services={[Page]}></Inject>
+            <Inject services={[Page, Edit, Toolbar]}></Inject>
         </GridComponent>
     )
 };

@@ -3,12 +3,12 @@ import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 
 const CustomDropDown = (props) => {
     const {id, dataSource, fields, allowObjectBinding, value, enabled, onChange} = props;
-
+    const presetCategoryDropdownListFields = { text: 'value', value: 'key' };
     return(
     <DropDownListComponent 
         id={id} 
         dataSource={dataSource} 
-        fields={fields}
+        fields={fields ? fields : presetCategoryDropdownListFields}
         value={value}
         allowObjectBinding={allowObjectBinding}
         enabled={enabled}

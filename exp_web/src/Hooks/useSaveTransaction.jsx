@@ -96,13 +96,13 @@ const useSaveTransaction = () => {
             }
 
             callBack();
+            setLoadingState(false);
         }
         catch(error)
         {
             console.log(error);
+            setLoadingState(false);
         }
-
-        setLoadingState(false);
     };
 
     return {loadingState, createTransaction, updateTransaction, deleteTransaction};

@@ -3,6 +3,7 @@ import useLogin from '../../Hooks/useLogin.jsx';
 import './Login.css';
 import CustomButton from '../../Components/UIControls/CustomButton.jsx';
 import CustomTextBox from '../../Components/UIControls/CustomTextBox.jsx';
+import CustomLabel from '../../Components/UIControls/CustomLabel.jsx';
 
 const Login = () => {
     const [inputs, setInputs] = useState({
@@ -20,10 +21,10 @@ const Login = () => {
 
     return (<div className='login-page-div'>
         <form onSubmit={loginAction}>
-            <label>Username</label>
+            <CustomLabel>Username</CustomLabel>
             <CustomTextBox value={inputs.userLoginId} placeHolder='Username' onChange={(e) => setInputs({...inputs, userLoginId: e.target.value})}></CustomTextBox>
 
-            <label>Password</label>
+            <CustomLabel>Password</CustomLabel>
             <CustomTextBox value={inputs.password} placeHolder='Password' type='password' onChange={(e) => setInputs({...inputs, password: e.target.value})}></CustomTextBox>
 
             <CustomButton type='submit' text="Login"></CustomButton>

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using server.Enums;
 using Server.Controllers.Base;
 using Server.Dtos.DropDownList;
+using Server.Enums;
 using Server.Models;
 
 namespace server.Controllers;
@@ -30,6 +31,10 @@ public class DropDownListController: ApiBaseController{
             case DropDownListType.SubCategory:
                 dropDownListItems = await _context.SubCategories.Where(x => x.ClientId == _currentClientId && x.CategoryId == parentId.GetValueOrDefault()).Select(x => new DropDownListItemDto(x.SubCategoryId, x.SubCategoryName)).ToListAsync();
             break;
+            case DropDownListType.CategoryType:
+                dropDownListItems.Add(new DropDownListItemDto(CategoryType.Expense.ToString(), CategoryType.Expense.GetEnumDescription()));
+                dropDownListItems.Add(new DropDownListItemDto(CategoryType.Income.ToString(), CategoryType.Income.GetEnumDescription()));
+            break;            
             default:
                 dropDownListItems = await _context.Categories.Where(x => x.ClientId == _currentClientId).Select(x => new DropDownListItemDto(x.CategoryId, x.CategoryName)).ToListAsync();
             break;

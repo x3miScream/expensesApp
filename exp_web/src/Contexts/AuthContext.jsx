@@ -17,7 +17,6 @@ const getAuthUser = async (callBackSetUser, callBackSetReady) => {
 
         try{
             let res = await fetch(url, fetchObject);
-            console.log(res);
 
             if(res.status == 200)
             {
