@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.Dtos;
@@ -26,20 +27,22 @@ public class UserController : ApiBaseController{
         : base(context, serviceProvider, appSettings, httpContextAccessor) {
     }
 
-    public async Task<ActionResult<UserReadDto>> Post([FromBody]UserCreateDto createDto)
+    [AllowAnonymous]
+    public async Task<ActionResult<UserReadDto>> Post([FromBody] UserCreateDto createDto)
     {
-        if(createDto != null)
+        if (createDto != null)
         {
             User duplicatedUser = await _context.Users.FirstOrDefaultAsync(x => x.UserLoginId.ToLower() == createDto.UserLoginId.ToLower());
 
-            if(duplicatedUser != null)
+            if (duplicatedUser != null)
             {
                 return BadRequest("User with same login id already exists");
             }
 
             string salt = encryptionService.GenerateNewSaltKey();
 
-            User user = new User(){
+            User user = new User()
+            {
                 UserName = createDto.UserName,
                 UserLoginId = createDto.UserLoginId,
                 Password = encryptionService.GenerateHash(createDto.Password, salt),
@@ -56,17 +59,19 @@ public class UserController : ApiBaseController{
 
             User newUser = await _context.Users.FindAsync(user.UserId);
 
-            UserReadDto readDto = new UserReadDto(){
+            UserReadDto readDto = new UserReadDto()
+            {
                 UserId = user.UserId,
                 UserName = user.UserName,
                 UserLoginId = user.UserLoginId,
                 Password = user.Password,
-                Salt = user.Salt    
+                Salt = user.Salt
             };
 
             return Ok(readDto);
         }
-        else{
+        else
+        {
             return BadRequest("No Data Provided");
         }
     }

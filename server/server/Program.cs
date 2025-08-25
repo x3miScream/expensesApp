@@ -19,6 +19,12 @@ builder.Services.AddCors(options =>
     })
 );
 
+builder.Services.AddStackExchangeRedisCache(redisOptions =>
+{
+    string connection = builder.Configuration.GetConnectionString("Redis");
+    redisOptions.Configuration = connection;
+});
+
 builder.Services.AddControllers();
 
 // Add IConfiguration to the container

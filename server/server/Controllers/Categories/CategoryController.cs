@@ -2,6 +2,8 @@ using System.IO.Compression;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json;
 using Server.Controllers.Base;
 using Server.Models;
 
@@ -11,18 +13,49 @@ namespace server.Controllers.Categories;
 [Route("api/Categories")]
 public class CategoryController : ApiBaseController
 {
-    public CategoryController(ApplicationDBContext context, IServiceProvider serviceProvider, IConfiguration appSettings, IHttpContextAccessor httpContextAccessor)
-        : base(context, serviceProvider, appSettings, httpContextAccessor){
+    private readonly IDistributedCache _distributedCache;
+    public CategoryController(ApplicationDBContext context, IServiceProvider serviceProvider, IConfiguration appSettings, IHttpContextAccessor httpContextAccessor,
+        IDistributedCache distributedCache)
+        : base(context, serviceProvider, appSettings, httpContextAccessor)
+    {
+        _distributedCache = distributedCache;
     }
 
 
 
     [HttpGet(Name = "GetCategories")]
-    public async Task<ActionResult<List<CategoryReadDto>>> GetAllCategories()
+    public async Task<ActionResult<List<CategoryReadDto>>> GetAllCategories(CancellationToken cancellationToken = default)
     {
-        List<Category> categories = await _context.Categories.Where(x => x.ClientId == _currentClientId).ToListAsync();
+        string cacheKey = $"products-all";
+        List<Category> categories = new List<Category>();
 
-        return Ok(categories.Select(x => new CategoryReadDto(){
+        string cachedMember = await _distributedCache.GetStringAsync(cacheKey, cancellationToken);
+
+        if (string.IsNullOrEmpty(cachedMember))
+        {
+            Console.WriteLine("From DB");
+
+            categories = await _context.Categories.Where(x => x.ClientId == _currentClientId).ToListAsync();
+
+            if (categories.Any())
+            {
+                _distributedCache.SetStringAsync(cacheKey, JsonConvert.SerializeObject(categories), cancellationToken);
+            }
+        }
+        else
+        {
+            Console.WriteLine("From Cache");
+
+            categories = new List<Category>();
+            categories = JsonConvert.DeserializeObject<List<Category>>(cachedMember,
+             new JsonSerializerSettings
+             { 
+                ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
+             });
+        }
+
+        return Ok(categories.Select(x => new CategoryReadDto()
+        {
             CategoryId = x.CategoryId,
             CategoryCode = x.CategoryCode,
             CategoryName = x.CategoryName,
@@ -89,6 +122,8 @@ public class CategoryController : ApiBaseController
                 Icon = newCategory.Icon,
                 CategoryType = newCategory.CategoryType
             };
+
+            await _distributedCache.RemoveAsync($"products-all");
 
             return Ok(readDto);
         }
