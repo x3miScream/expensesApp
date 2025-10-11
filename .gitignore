@@ -2,4 +2,29 @@
 exp_web/node_modules
 server/server/bin
 server/server/obj
-server/server/obj/
+server_mongo/.vs
+server_mongo/server/bin
+server_mongo/server/obj
+
+
+
+/exp_web_2/node_modules
+/exp_web_2/.pnp
+exp_web_2/.pnp.js
+
+# testing
+/exp_web_2/coverage
+
+# production
+/exp_web_2/build
+
+# misc
+exp_web_2/.DS_Store
+exp_web_2/.env.local
+exp_web_2/.env.development.local
+exp_web_2/.env.test.local
+exp_web_2/.env.production.local
+
+exp_web_2/npm-debug.log*
+exp_web_2/yarn-debug.log*
+exp_web_2/yarn-error.log*
