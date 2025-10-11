@@ -1,4 +1,10 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import Sidebar from './Components/Sidebar/Sidebar.jsx';
+import OverallBalanceSection from './Components/OverallBalanceSection/OverallBalanceSection.jsx';
+import SummaryTiles from './Components/SummaryTiles/SummaryTiles.jsx';
+
+import {formatCurrency} from './Utils/Utils.jsx';
+
 import { 
     Plus, BarChart2, DollarSign, Calendar, Tag, Clock, Trash2, Edit, X, AlertTriangle, 
     Menu, ChevronLeft, ChevronRight, Settings, Users 
@@ -21,13 +27,13 @@ const MOCK_TRANSACTIONS = [
   { id: 't3', name: 'Groceries (Weekly)', amount: -150.50, category: 'Food & Drink', date: '2025-10-06', timestamp: new Date('2025-10-06T08:15:00') },
 ].sort((a, b) => b.timestamp - a.timestamp); 
 
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  }).format(amount);
-};
+// const formatCurrency = (amount) => {
+//   return new Intl.NumberFormat('en-US', {
+//     style: 'currency',
+//     currency: 'USD',
+//     minimumFractionDigits: 2,
+//   }).format(amount);
+// };
 
 // --- CSS STYLES (Replaces Tailwind) ---
 const styles = `
@@ -1057,45 +1063,8 @@ const App = () => {
     );
   };
 
-
-  // Overall Balance Section
-  const OverallBalanceSection = ({ total, daily, weekly, monthly }) => (
-    <div className="balance-section">
-        <div className="balance-header">
-            <div>
-                <p className="balance-title">Overall Net Balance</p>
-                <h2 className="balance-amount">
-                    {formatCurrency(total)}
-                </h2>
-            </div>
-        </div>
-
-        {/* Time-Based Balances (Daily, Weekly, Monthly) */}
-        <div className="metric-grid">
-            {[
-                { title: 'Daily Net', value: daily, icon: Calendar },
-                { title: '7-Day Net', value: weekly, icon: Clock },
-                { title: 'Monthly Net', value: monthly, icon: BarChart2 },
-            ].map((metric) => {
-                const isPositive = metric.value >= 0;
-                return (
-                    <div key={metric.title} className="metric-item">
-                        <div>
-                            <p className="metric-title">{metric.title}</p>
-                            <p className={`metric-value ${isPositive ? 'text-green-300' : 'text-red-300'}`}>
-                                {formatCurrency(metric.value)}
-                            </p>
-                        </div>
-                        <metric.icon className="w-5 h-5" style={{ width: '1.25rem', height: '1.25rem', color: '#93c5fd', opacity: 0.6 }} />
-                    </div>
-                );
-            })}
-        </div>
-    </div>
-);
-
   // Small Summary Cards (Income/Expense/Category)
-  const SummaryTiles = () => (
+  const SummaryTilesOld = () => (
     <div className="summary-tiles-grid">
       {/* Total Income */}
       <div className="tile-item">
@@ -1188,59 +1157,6 @@ const App = () => {
   };
 
 
-  // --- Sidebar Component ---
-  const Sidebar = ({ isOpen, onToggle }) => {
-    const currentWidthClass = isOpen ? 'sidebar-expanded' : 'sidebar-collapsed';
-    
-    // Links with placeholder icons
-    const links = [
-        { name: 'Dashboard', icon: BarChart2, active: true },
-        { name: 'Your Shop', icon: Tag, active: false },
-        { name: 'Pay Merchant', icon: DollarSign, active: false },
-        { name: 'Orders', icon: Calendar, active: false },
-        { name: 'Reports', icon: Settings, active: false },
-        { name: 'Collections', icon: Users, active: false },
-        { name: 'Repayments', icon: Clock, active: false },
-        { name: 'Wallet', icon: Tag, active: false },
-        { name: 'Manage', icon: Settings, active: false }
-    ];
-
-    return (
-      // Apply dynamic width class
-      <div className={`sidebar ${currentWidthClass}`}>
-        <div className="sidebar-header">
-          {/* Logo/Title - Hide text when collapsed */}
-          <h1 className="sidebar-title" style={{ opacity: isOpen ? 1 : 0, width: isOpen ? 'auto' : 0 }}>
-            <DollarSign className="inline w-6 h-6 mr-1" style={{ display: 'inline', width: '1.5rem', height: '1.5rem', marginRight: '0.25rem' }} /> FloPay
-          </h1>
-          
-          {/* Collapse/Expand Toggle Button - Now has increased click area via p-2 padding in CSS */}
-          <button 
-            onClick={onToggle}
-            className="sidebar-toggle-btn"
-            title={isOpen ? "Collapse Sidebar" : "Expand Sidebar"}
-          >
-            {isOpen ? <ChevronLeft className="w-6 h-6" /> : <ChevronRight className="w-6 h-6" />}
-          </button>
-        </div>
-        
-        <nav className="sidebar-nav">
-          {links.map((item) => (
-            <div 
-              key={item.name} 
-              className={`nav-link ${item.active ? 'nav-link-active' : ''} ${isOpen ? '' : 'nav-link-collapsed'}`}
-            >
-              <item.icon className="w-5 h-5 flex-shrink-0" style={{ width: '1.25rem', height: '1.25rem', flexShrink: 0 }} />
-              {/* Hide text when collapsed */}
-              <span className={isOpen ? '' : 'nav-link-text-hidden'}>{item.name}</span>
-            </div>
-          ))}
-        </nav>
-      </div>
-    );
-  };
-
-
   // --- Main Render ---
   const sidebarMarginClass = isSidebarOpen ? 'main-content-expanded' : 'main-content-collapsed';
 
@@ -1258,13 +1174,13 @@ const App = () => {
           <div className="card" style={{ padding: '1rem', marginBottom: '1.5rem', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)' }}>
               
               {/* Hamburger Button for Mobile/Tablet */}
-              <button
+              {/* <button
                   onClick={toggleSidebar}
                   className="btn-icon"
                   style={{ display: 'block', marginRight: '0.75rem', color: '#4b5563' }}
               >
                   <Menu className="w-6 h-6" style={{ width: '1.5rem', height: '1.5rem' }} />
-              </button>
+              </button> */}
               
               <div style={{ position: 'relative', width: '100%', maxWidth: '36rem' }}>
                   <input
@@ -1279,7 +1195,7 @@ const App = () => {
           </div>
 
           {/* 1. BALANCE SECTION (Overall + Daily/Weekly/Monthly) */}
-          <OverallBalanceSection 
+          <OverallBalanceSection
             total={totalExpenses}
             daily={dailyBalance}
             weekly={weeklyBalance}
@@ -1287,7 +1203,8 @@ const App = () => {
           />
           
           {/* 2. SUMMARY TILES (Income/Expense/Category) */}
-          <SummaryTiles />
+          <SummaryTilesOld />
+          <SummaryTiles categories={CATEGORIES} expenses={expenses} />
           
           {/* 3. MONTHLY FIXED BUDGET GRID */}
           <MonthlyBudgetGrid data={MOCK_BUDGET_DATA} months={BUDGET_MONTHS} />
