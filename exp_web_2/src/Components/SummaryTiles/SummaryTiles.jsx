@@ -3,12 +3,11 @@ import { DollarSign, Tag, Trash2 } from 'lucide-react';
 
 import {formatCurrency} from '../../Utils/Utils.jsx';
 
+import { CATEGORIES, MOCK_BUDGET_DATA, MOCK_TRANSACTIONS, BUDGET_MONTHS } from '../../data/dummyData.jsx';
 
 
-const SummaryTiles = (categories=[], expenses=[]) => {
-    console.log('expenses');
-    console.log(expenses);
 
+const SummaryTiles = ({categories=[], expenses=[]}) => {
     const totalPositive = useMemo(() => {
         return expenses.filter(e => e.amount > 0).reduce((sum, e) => sum + e.amount, 0);
       }, [expenses]);

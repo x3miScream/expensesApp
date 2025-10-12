@@ -26,7 +26,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
         <div className="sidebar-header">
           {/* Logo/Title - Hide text when collapsed */}
           <h1 className="sidebar-title" style={{ opacity: isOpen ? 1 : 0, width: isOpen ? 'auto' : 0 }}>
-            <DollarSign className="inline w-6 h-6 mr-1" style={{ display: 'inline', width: '1.5rem', height: '1.5rem', marginRight: '0.25rem' }} /> FloPay
+            <DollarSign className="inline w-6 h-6 mr-1" style={{ display: 'inline', width: '1.5rem', height: '1.5rem', marginRight: '0.25rem' }} /> ExpApp
           </h1>
           
           {/* Collapse/Expand Toggle Button - Now has increased click area via p-2 padding in CSS */}
