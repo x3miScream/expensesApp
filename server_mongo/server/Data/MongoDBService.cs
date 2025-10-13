@@ -11,10 +11,9 @@ namespace Server.Data
 
 
 
-        public MongoDBService(IConfiguration configuration, IMongoDatabase mongoDatabase)
+        public MongoDBService(IConfiguration configuration)
         {
             _configuration = configuration;
-            _mongoDatabase = mongoDatabase;
 
             var connectionString = _configuration.GetConnectionString("MongoDBConnection");
             var database = _configuration.GetConnectionString("MongoDBDatabase");
