@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Reflection.Metadata;
+using MongoDB.Bson;
 
 namespace Server.Utils
 {
@@ -32,6 +33,26 @@ namespace Server.Utils
 
             // Return the attribute's property value if the attribute was found.
             return attribute?.GetDocumentType();
+        }
+    }
+
+
+
+
+
+    public static class ObjectIdConverter
+    {
+        public static ObjectId ConvertStringToObjectId(this string objectIdString)
+        {
+            if (ObjectId.TryParse(objectIdString, out ObjectId objectId))
+            {
+                return objectId;
+            }
+            else
+            {
+                // Handle invalid string format, e.g., throw an exception or return a default value
+                throw new ArgumentException("Invalid ObjectId string format.", nameof(objectIdString));
+            }
         }
     }
 }

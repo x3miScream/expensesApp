@@ -5,6 +5,8 @@ import SummaryTiles from '../../Components/SummaryTiles/SummaryTiles.jsx';
 import MonthlyBudgetGrid from '../../Components/MonthlyBudgetGrid/MonthlyBudgetGrid.jsx';
 import Modal from '../../Components/Modal/Modal.jsx';
 
+import useTransactionCreateUdpateDelete from '../../Hooks/useTransactionCreateUdpateDelete.jsx';
+
 import {formatCurrency} from '../../Utils/Utils.jsx';
 
 import { 
@@ -27,6 +29,8 @@ const Home = () => {
     expenseToDelete: null 
   }); 
 
+  const {saveLoadingState, saveTransaction} = useTransactionCreateUdpateDelete();
+
   // State for Collapsible Sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -44,6 +48,7 @@ const Home = () => {
 
   // --- Handlers (Local State Operations) ---
   const handleAddExpense = useCallback((e, onClose) => {
+
     e.preventDefault();
 
     let parsedAmount = parseFloat(amountRef.current.value);
@@ -68,6 +73,15 @@ const Home = () => {
         date: date,
         timestamp: new Date(),
     };
+
+    const newTransactionCRUD = {
+      categoryId: '68eb6e29ed4af858c8669d0b',
+      description: nameRef.current.value.trim(),
+      amount: parsedAmount,
+      transactionType: 0
+    }
+
+    saveTransaction(newTransactionCRUD);
 
     setExpenses(prev => [newExpense, ...prev].sort((a, b) => b.timestamp - a.timestamp));
 
