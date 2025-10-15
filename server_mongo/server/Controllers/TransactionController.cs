@@ -22,44 +22,30 @@ namespace Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get(bool isIncludeForeignKeys = false)
+        public async Task<IActionResult> Get()
         {
             List<TransactionReadDto> transactionsDto = new List<TransactionReadDto>();
 
-            if (isIncludeForeignKeys)
-            {
-                List<Category> categories = await _categories.Find(FilterDefinition<Category>.Empty).ToListAsync();
+            List<Category> categories = await _categories.Find(FilterDefinition<Category>.Empty).ToListAsync();
 
-                List<Transaction> transactions = await _transactions.Find(FilterDefinition<Transaction>.Empty).ToListAsync();
+            List<Transaction> transactions = await _transactions.Find(FilterDefinition<Transaction>.Empty).ToListAsync();
 
-                transactionsDto = transactions.Join(categories,
-                                    outer => outer.CategoryId,
-                                    inner => inner.Id,
-                                    (outer, inner) => new TransactionReadDto()
-                                    {
-                                        Id = outer.Id,
-                                        Description = outer.Description,
-                                        TransactionDateTime = outer.TransactionDateTime,
-                                        Amount = outer.Amount,
-                                        TransactionType = outer.TransactionType,
-                                        CategoryId = outer.CategoryId,
-                                        Category = inner
-                                    }
-                    ).ToList();
-
-                    
-            }
-            else
-            {
-                transactionsDto = await _transactions.Find(FilterDefinition<Transaction>.Empty).Project(transation => new TransactionReadDto() { 
-                    Id = transation.Id,
-                    CategoryId = transation.CategoryId,
-                    Description = transation.Description,
-                    Amount = transation.Amount,
-                    TransactionDateTime = transation.TransactionDateTime,
-                    TransactionType = transation.TransactionType
-                }).ToListAsync();
-            }
+            transactionsDto = transactions.Join(categories,
+                                outer => outer.CategoryId,
+                                inner => inner.Id,
+                                (outer, inner) => new TransactionReadDto()
+                                {
+                                    Id = outer.Id,
+                                    Name = outer.Description,
+                                    Date = outer.TransactionDateTime.ToString("yyyy MMM dd"),
+                                    Timestamp = outer.TransactionDateTime.ToString("yyyy MMM dd"),
+                                    Amount = outer.Amount,
+                                    TransactionType = outer.TransactionType,
+                                    CategoryId = outer.CategoryId,
+                                    CategoryData = inner,
+                                    Category = inner.CategoryName
+                                }
+                ).ToList();
 
             return Ok(transactionsDto);
         }

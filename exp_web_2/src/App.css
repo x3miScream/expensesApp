@@ -367,6 +367,10 @@ body {
     text-overflow: ellipsis;
 }
 
+.tx-name-col-mobile { 
+    grid-column: span 2; /* Name takes 2 columns on mobile */
+}
+
 @media (min-width: 640px) { /* sm: Make all columns visible on desktop */
     .tx-category-col-header, 
     .tx-amount-col-header, 
@@ -380,9 +384,7 @@ body {
     }
     .tx-name-col-mobile { grid-column: span 1; } /* Name takes 1 column on desktop */
 }
-.tx-name-col-mobile { 
-    grid-column: span 2; /* Name takes 2 columns on mobile */
-}
+
 .tx-income-text { color: var(--color-success); }
 .tx-expense-text { color: var(--color-danger); }
 

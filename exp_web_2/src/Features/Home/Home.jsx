@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import Sidebar from '../../Components/Sidebar/Sidebar.jsx';
 import OverallBalanceSection from '../../Components/OverallBalanceSection/OverallBalanceSection.jsx';
 import SummaryTiles from '../../Components/SummaryTiles/SummaryTiles.jsx';
@@ -6,6 +6,7 @@ import MonthlyBudgetGrid from '../../Components/MonthlyBudgetGrid/MonthlyBudgetG
 import Modal from '../../Components/Modal/Modal.jsx';
 
 import useTransactionCreateUdpateDelete from '../../Hooks/useTransactionCreateUdpateDelete.jsx';
+import useCategoryCRUD from '../../Hooks/useCategoryCRUD.jsx';
 
 import {formatCurrency} from '../../Utils/Utils.jsx';
 
@@ -29,7 +30,8 @@ const Home = () => {
     expenseToDelete: null 
   }); 
 
-  const {saveLoadingState, saveTransaction} = useTransactionCreateUdpateDelete();
+  const {saveLoadingState, saveTransaction, getTransactions, deleteTransaction} = useTransactionCreateUdpateDelete();
+  const {getCategories} = useCategoryCRUD();
 
   // State for Collapsible Sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -45,6 +47,11 @@ const Home = () => {
   const [date, setDate] = useState(new Date().toISOString().substring(0, 10)); 
   const [transactionType, setTransactionType] = useState('expense'); 
 
+
+  useEffect(() => {
+    getCategories(setCategories);
+    getTransactions(setExpenses);
+  }, []);
 
   // --- Handlers (Local State Operations) ---
   const handleAddExpense = useCallback((e, onClose) => {
@@ -65,20 +72,22 @@ const Home = () => {
 
     console.log(nameRef.current.value);
 
+    const categoryName = categories.filter((item) => item.id === categoryRef?.current?.value)[0]?.categoryName;
+
     const newExpense = {
         id: crypto.randomUUID(),
         name: nameRef.current.value.trim(),
         amount: parsedAmount,
-        category: categoryRef?.current?.value,
+        category: categoryName,
         date: date,
         timestamp: new Date(),
     };
 
     const newTransactionCRUD = {
-      categoryId: '68eb6e29ed4af858c8669d0b',
+      categoryId: categoryRef?.current?.value,
       description: nameRef.current.value.trim(),
       amount: parsedAmount,
-      transactionType: 0
+      transactionType: transactionType === 'expense' ? 1 : 0
     }
 
     saveTransaction(newTransactionCRUD);
@@ -88,7 +97,7 @@ const Home = () => {
     // Reset form fields
     nameRef.current.value = '';
     amountRef.current.value = '';
-    categoryRef.current.value = categories[0];
+    categoryRef.current.value = categories[0].id;
     setDate(new Date().toISOString().substring(0, 10));
 
     if (onClose) onClose();
@@ -96,6 +105,7 @@ const Home = () => {
   }, [nameRef?.current?.value, amountRef?.current?.value, categoryRef?.current?.value, date, transactionType]);
 
   const handleDeleteExpense = useCallback((expenseId) => {
+    deleteTransaction(expenseId);
     setExpenses(prev => prev.filter(expense => expense.id !== expenseId));
     setDeleteConfirmation({ isOpen: false, expenseToDelete: null });
   }, []);
@@ -267,7 +277,7 @@ const Home = () => {
                         style={{ appearance: 'none' }}
                     >
                         {categories.map(cat => (
-                            <option key={cat} value={cat}>{cat}</option>
+                            <option key={cat.id} value={cat.id}>{cat.categoryName}</option>
                         ))}
                     </select>
                 </div>

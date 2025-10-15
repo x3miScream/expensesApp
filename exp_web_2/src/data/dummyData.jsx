@@ -1,4 +1,13 @@
-const CATEGORIES = ['Food & Drink', 'Housing', 'Transportation', 'Entertainment', 'Utilities', 'Salary', 'Other'];
+// const CATEGORIES = ['Food & Drink', 'Housing', 'Transportation', 'Entertainment', 'Utilities', 'Salary', 'Other'];
+const CATEGORIES = [
+  {id: '68eb6e29ed4af858c8669d0b', categoryName: 'Food & Drink'},
+  {id: '68eb6e29ed4af858c8669d0b', categoryName: 'Housing'},
+  {id: '68eb6e29ed4af858c8669d0b', categoryName: 'Transportation'},
+  {id: '68eb6e29ed4af858c8669d0b', categoryName: 'Entertainment'},
+  {id: '68eb6e29ed4af858c8669d0b', categoryName: 'Utilities'},
+  {id: '68eb6e29ed4af858c8669d0b', categoryName: 'Salary'},
+  {id: '68eb6e29ed4af858c8669d0b', categoryName: 'Other'}
+];
 const MOCK_BUDGET_DATA = [
   { category: 'Housing', subCategory: 'Rental', item: 'Rental', budget: 2100.00, actuals: { '202510': 2100.00, '202511': 0, '202512': 0 } },
   { category: 'Housing', subCategory: 'Utility', item: 'Electricity', budget: 250.00, actuals: { '202510': 206.40, '202511': 0, '202512': 0 } },
