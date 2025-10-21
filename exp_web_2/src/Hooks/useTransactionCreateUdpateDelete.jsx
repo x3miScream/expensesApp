@@ -20,11 +20,21 @@ const useTransactionCreateUdpateDelete = () => {
         setData(data);
     };
 
-    const saveTransaction = async (transaction) => {
+    const createTransaction = async(transaction) => {
+        await saveTransaction(transaction, 'create');
+    };
+    const updateTransaction = async(transaction) => {
+        await saveTransaction(transaction, 'update');
+    };
+
+    const saveTransaction = async (transaction, actino) => {
         setSaveLoadingState(true);
 
         const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/transactions`;
-        const verb = 'POST';
+        let verb = 'POST';
+
+        if(actino === 'update')
+            verb = 'PUT';
 
         const fetchObj = {
             method: verb,
@@ -74,7 +84,8 @@ const useTransactionCreateUdpateDelete = () => {
     
     return {
         saveLoadingState,
-        saveTransaction,
+        createTransaction,
+        updateTransaction,
         getTransactions,
         deleteTransaction
     }

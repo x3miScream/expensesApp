@@ -37,6 +37,7 @@ namespace Server.Controllers
                                 {
                                     Id = outer.Id,
                                     Name = outer.Description,
+                                    DateVal = outer.TransactionDateTime,
                                     Date = outer.TransactionDateTime.ToString("yyyy MMM dd"),
                                     Timestamp = outer.TransactionDateTime.ToString("yyyy MMM dd"),
                                     Amount = outer.Amount,

@@ -25,12 +25,13 @@ const Home = () => {
   const [categories, setCategories] = useState(CATEGORIES);
   const [expenses, setExpenses] = useState(MOCK_TRANSACTIONS);
   const [showModal, setShowModal] = useState(false);
+  const [editTransactionData, setEditTransactionData] = useState(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState({ 
     isOpen: false, 
     expenseToDelete: null 
   }); 
 
-  const {saveLoadingState, saveTransaction, getTransactions, deleteTransaction} = useTransactionCreateUdpateDelete();
+  const {saveLoadingState, createTransaction, updateTransaction, getTransactions, deleteTransaction} = useTransactionCreateUdpateDelete();
   const {getCategories} = useCategoryCRUD();
 
   // State for Collapsible Sidebar
@@ -40,11 +41,13 @@ const Home = () => {
   const toggleSidebar = useCallback(() => setIsSidebarOpen(prev => !prev), []);
 
   // New Expense Form State
+  const transactionIdRef = useRef('');
   const nameRef = useRef('');
   const amountRef = useRef(null);
   const categoryRef = useRef(null);
+  const dateRef = useRef(new Date().toISOString().substring(0, 10));
 
-  const [date, setDate] = useState(new Date().toISOString().substring(0, 10)); 
+  // const [date, setDate] = useState(new Date().toISOString().substring(0, 10)); 
   const [transactionType, setTransactionType] = useState('expense'); 
 
 
@@ -54,8 +57,7 @@ const Home = () => {
   }, []);
 
   // --- Handlers (Local State Operations) ---
-  const handleAddExpense = useCallback((e, onClose) => {
-
+  const handleAddExpense = useCallback((e, onClose, transactionId) => {
     e.preventDefault();
 
     let parsedAmount = parseFloat(amountRef.current.value);
@@ -70,8 +72,6 @@ const Home = () => {
       parsedAmount = Math.abs(parsedAmount); 
     }
 
-    console.log(nameRef.current.value);
-
     const categoryName = categories.filter((item) => item.id === categoryRef?.current?.value)[0]?.categoryName;
 
     const newExpense = {
@@ -79,18 +79,22 @@ const Home = () => {
         name: nameRef.current.value.trim(),
         amount: parsedAmount,
         category: categoryName,
-        date: date,
+        date: dateRef?.current?.value,
         timestamp: new Date(),
     };
 
     const newTransactionCRUD = {
+      id: transactionId,
       categoryId: categoryRef?.current?.value,
       description: nameRef.current.value.trim(),
       amount: parsedAmount,
       transactionType: transactionType === 'expense' ? 1 : 0
     }
 
-    saveTransaction(newTransactionCRUD);
+    if(transactionId === undefined || transactionId === null)
+      createTransaction(newTransactionCRUD);
+    else
+      updateTransaction(newTransactionCRUD);
 
     setExpenses(prev => [newExpense, ...prev].sort((a, b) => b.timestamp - a.timestamp));
 
@@ -98,11 +102,11 @@ const Home = () => {
     nameRef.current.value = '';
     amountRef.current.value = '';
     categoryRef.current.value = categories[0].id;
-    setDate(new Date().toISOString().substring(0, 10));
+    dateRef.current.value = new Date().toISOString().substring(0, 10)
 
     if (onClose) onClose();
 
-  }, [nameRef?.current?.value, amountRef?.current?.value, categoryRef?.current?.value, date, transactionType]);
+  }, [nameRef?.current?.value, amountRef?.current?.value, categoryRef?.current?.value, dateRef?.current?.value, transactionType]);
 
   const handleDeleteExpense = useCallback((expenseId) => {
     deleteTransaction(expenseId);
@@ -186,10 +190,48 @@ const Home = () => {
     );
   };
 
+  const SetTransactionEditData = (transaction) => {
+    setEditTransactionData(transaction);
+    setShowModal(true);
+  };
+
+  const SetTransactionAddData = (transaction) => {
+    setEditTransactionData(null);
+    setShowModal(true);
+  };
+
+  const CloseTransactionWindow = () => {
+    setEditTransactionData(null);
+    setShowModal(false);
+  };
 
   // New Expense Form Component (Inline)
   const TransactionFormContent = ({ onClose }) => {
-    const handleSubmit = (e) => handleAddExpense(e, onClose);
+    const handleSubmit = (e) => handleAddExpense(e, onClose, editTransactionData?.id);
+
+    useEffect(() => {
+      if(editTransactionData !== null && editTransactionData !== undefined)
+      {
+        console.log(editTransactionData)
+
+        if(editTransactionData.transactionType === 1){
+          setTransactionType('expense');
+        }
+        else{
+          setTransactionType('income');
+        }
+
+        nameRef.current.value = editTransactionData.name;
+        amountRef.current.value = Math.abs(editTransactionData.amount);
+        categoryRef.current.value = editTransactionData.categoryId;
+        dateRef.current.value = new Date(editTransactionData.dateVal).toISOString().substring(0, 10);
+      }
+      else{
+        dateRef.current.value = new Date().toISOString().substring(0, 10);
+      }
+      
+      console.log(dateRef.current.value); 
+    }, []);
 
     return (
         <div className="p-6">
@@ -259,8 +301,7 @@ const Home = () => {
                         <input
                             id="date"
                             type="date"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
+                            ref={dateRef}
                             required
                             className="input-field"
                         />
@@ -295,7 +336,7 @@ const Home = () => {
   };
 
   // Transaction Row
-  const TransactionRow = ({ expense, onDeleteClick }) => {
+  const TransactionRow = ({ expense, onDeleteClick, onEditClick }) => {
     const isIncome = expense.amount > 0;
     const amountColorClass = isIncome ? 'tx-income-text' : 'tx-expense-text';
     const sign = isIncome ? '+' : ''; 
@@ -339,10 +380,11 @@ const Home = () => {
             </button>
             {/* Edit Button Placeholder */}
             <button
+                onClick={() => onEditClick(expense)}
                 className="btn-icon"
                 style={{ color: '#4f46e5' }}
                 title="Edit Transaction"
-                disabled 
+                disabled={false}
             >
                 <Edit className="w-4 h-4" style={{ width: '1rem', height: '1rem' }} />
             </button>
@@ -408,7 +450,7 @@ const Home = () => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid #f3f4f6', paddingBottom: '1rem' }}>
                       <h2 className="text-xl font-bold text-gray-800" style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1f2937' }}>Transaction History</h2>
                       <button 
-                        onClick={() => setShowModal(true)}
+                        onClick={() => SetTransactionAddData()}
                         style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.875rem', fontWeight: 600, color: '#4f46e5', transition: 'color 0.1s', border: 'none', background: 'none', cursor: 'pointer' }}
                       >
                           <Plus className="w-4 h-4" style={{ width: '1rem', height: '1rem' }} />
@@ -439,6 +481,7 @@ const Home = () => {
                             key={expense.id} 
                             expense={expense}
                             onDeleteClick={(exp) => setDeleteConfirmation({ isOpen: true, expenseToDelete: exp })}
+                            onEditClick={SetTransactionEditData}
                           />
                       ))}
                   </div>
@@ -448,7 +491,7 @@ const Home = () => {
         
         {/* FLOATING ACTION BUTTON (FAB) */}
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => SetTransactionAddData()}
           className="fab"
           title="Add New Transaction"
         >
@@ -456,8 +499,8 @@ const Home = () => {
         </button>
 
         {/* 1. ADD TRANSACTION MODAL CONTAINER */}
-        <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
-          <TransactionFormContent onClose={() => setShowModal(false)} />
+        <Modal isOpen={showModal} onClose={() => CloseTransactionWindow()}>
+          <TransactionFormContent onClose={() => CloseTransactionWindow()} />
         </Modal>
         
         {/* 2. DELETE CONFIRMATION MODAL CONTAINER */}
