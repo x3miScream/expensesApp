@@ -20,14 +20,14 @@ const useTransactionCreateUdpateDelete = () => {
         setData(data);
     };
 
-    const createTransaction = async(transaction) => {
-        await saveTransaction(transaction, 'create');
+    const createTransaction = async(transaction, postSaveCallback) => {
+        await saveTransaction(transaction, 'create', postSaveCallback);
     };
-    const updateTransaction = async(transaction) => {
-        await saveTransaction(transaction, 'update');
+    const updateTransaction = async(transaction, postSaveCallback) => {
+        await saveTransaction(transaction, 'update', postSaveCallback);
     };
 
-    const saveTransaction = async (transaction, actino) => {
+    const saveTransaction = async (transaction, actino, postSaveCallback) => {
         setSaveLoadingState(true);
 
         const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/transactions`;
@@ -46,7 +46,13 @@ const useTransactionCreateUdpateDelete = () => {
 
         try{
             const res = await fetch(url, fetchObj);
+
+            console.log(res);
+
             const data = await res.json();
+
+            if(postSaveCallback !== undefined)
+                postSaveCallback();
         }
         catch(error){
             console.log(error)

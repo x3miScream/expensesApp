@@ -92,11 +92,12 @@ const Home = () => {
     }
 
     if(transactionId === undefined || transactionId === null)
-      createTransaction(newTransactionCRUD);
+      createTransaction(newTransactionCRUD, getTransactions(setExpenses));
     else
-      updateTransaction(newTransactionCRUD);
+      updateTransaction(newTransactionCRUD, getTransactions(setExpenses));
 
-    setExpenses(prev => [newExpense, ...prev].sort((a, b) => b.timestamp - a.timestamp));
+    // if(transactionId === undefined || transactionId === null)
+    //   setExpenses(prev => [newExpense, ...prev].sort((a, b) => b.timestamp - a.timestamp));
 
     // Reset form fields
     nameRef.current.value = '';
@@ -212,8 +213,6 @@ const Home = () => {
     useEffect(() => {
       if(editTransactionData !== null && editTransactionData !== undefined)
       {
-        console.log(editTransactionData)
-
         if(editTransactionData.transactionType === 1){
           setTransactionType('expense');
         }
