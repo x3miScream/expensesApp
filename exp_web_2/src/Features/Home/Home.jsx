@@ -7,6 +7,7 @@ import Modal from '../../Components/Modal/Modal.jsx';
 
 import useTransactionCreateUdpateDelete from '../../Hooks/useTransactionCreateUdpateDelete.jsx';
 import useCategoryCRUD from '../../Hooks/useCategoryCRUD.jsx';
+import useGetRecurringTransactions from '../../Hooks/useGetRecurringTransactions.jsx';
 
 import {formatCurrency} from '../../Utils/Utils.jsx';
 
@@ -23,6 +24,7 @@ import { CATEGORIES, MOCK_BUDGET_DATA, MOCK_TRANSACTIONS, BUDGET_MONTHS } from '
 const Home = () => {
   // --- Local State Initialization (using mock data) ---
   const [categories, setCategories] = useState(CATEGORIES);
+  const [recurringTransactions, setRecurringTransactions] = useState([]);
   const [expenses, setExpenses] = useState(MOCK_TRANSACTIONS);
   const [showModal, setShowModal] = useState(false);
   const [editTransactionData, setEditTransactionData] = useState(null);
@@ -33,6 +35,7 @@ const Home = () => {
 
   const {saveLoadingState, createTransaction, updateTransaction, getTransactions, deleteTransaction} = useTransactionCreateUdpateDelete();
   const {getCategories} = useCategoryCRUD();
+  const {getRecurringTransactiosn} = useGetRecurringTransactions();
 
   // State for Collapsible Sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -45,6 +48,7 @@ const Home = () => {
   const nameRef = useRef('');
   const amountRef = useRef(null);
   const categoryRef = useRef(null);
+  const recurringTransactionRef = useRef(null);
   const dateRef = useRef(new Date().toISOString().substring(0, 10));
 
   // const [date, setDate] = useState(new Date().toISOString().substring(0, 10)); 
@@ -54,6 +58,7 @@ const Home = () => {
   useEffect(() => {
     getCategories(setCategories);
     getTransactions(setExpenses);
+    getRecurringTransactiosn(setRecurringTransactions);
   }, []);
 
   // --- Handlers (Local State Operations) ---
@@ -88,7 +93,9 @@ const Home = () => {
       categoryId: categoryRef?.current?.value,
       description: nameRef.current.value.trim(),
       amount: parsedAmount,
-      transactionType: transactionType === 'expense' ? 1 : 0
+      transactionType: transactionType === 'expense' ? 1 : 0,
+      recurringItemId: recurringTransactionRef?.current?.value,
+      transactionDateTime: dateRef?.current?.value
     }
 
     if(transactionId === undefined || transactionId === null)
@@ -223,13 +230,12 @@ const Home = () => {
         nameRef.current.value = editTransactionData.name;
         amountRef.current.value = Math.abs(editTransactionData.amount);
         categoryRef.current.value = editTransactionData.categoryId;
+        recurringTransactionRef.current.value = editTransactionData.recurringItemId;
         dateRef.current.value = new Date(editTransactionData.dateVal).toISOString().substring(0, 10);
       }
       else{
         dateRef.current.value = new Date().toISOString().substring(0, 10);
       }
-      
-      console.log(dateRef.current.value); 
     }, []);
 
     return (
@@ -318,6 +324,23 @@ const Home = () => {
                     >
                         {categories.map(cat => (
                             <option key={cat.id} value={cat.id}>{cat.categoryName}</option>
+                        ))}
+                    </select>
+                </div>
+                
+                {/* Recurring Transactions */}
+                <div>
+                    <label htmlFor="recurringTransaction" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 500, color: '#6b7280', marginBottom: '0.25rem' }}>Recurring Transaction</label>
+                    <select
+                        id="recurringTransaction"
+                        ref={recurringTransactionRef}
+                        className="input-field"
+                        style={{ appearance: 'none' }}
+                    >
+                        <option key='0' value='' selected disabled></option>
+
+                        {recurringTransactions.map(recItem => (
+                            <option key={recItem.recurringItemId} value={recItem.recurringItemId}>{`${recItem.categoryName} | ${recItem.recurringItemName}`}</option>
                         ))}
                     </select>
                 </div>
@@ -441,7 +464,7 @@ const Home = () => {
           <SummaryTiles categories={categories} expenses={expenses} />
           
           {/* 3. MONTHLY FIXED BUDGET GRID */}
-          <MonthlyBudgetGrid data={MOCK_BUDGET_DATA} months={BUDGET_MONTHS} />
+          <MonthlyBudgetGrid months={BUDGET_MONTHS} />
 
           {/* 4. TRANSACTION HISTORY (Full Width) */}
           <div style={{ marginTop: '2rem' }}>

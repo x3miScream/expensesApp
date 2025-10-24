@@ -61,9 +61,9 @@ namespace Server.Data
             var dataToSeed = new List<RecurringItem>
             {
                 new RecurringItem { RecurringItemCode = "RENT", RecurringItemName = "Rental", Description = "Rental", CategoryId = categories.FirstOrDefault(x => x.CategoryCode == Constants.CATEGORY_CODE_HOUSING).Id },
-                new RecurringItem { RecurringItemCode = "ELECTRICITY", RecurringItemName = "Electricity", Description = "Electricity", CategoryId = categories.FirstOrDefault(x => x.CategoryCode == Constants.CATEGORY_CODE_HOUSING).Id },
-                new RecurringItem { RecurringItemCode = "WATER", RecurringItemName = "WATER", Description = "WATER", CategoryId = categories.FirstOrDefault(x => x.CategoryCode == Constants.CATEGORY_CODE_HOUSING).Id },
-                new RecurringItem { RecurringItemCode = "INTERNET", RecurringItemName = "INTERNET", Description = "INTERNET", CategoryId = categories.FirstOrDefault(x => x.CategoryCode == Constants.CATEGORY_CODE_HOUSING).Id },
+                new RecurringItem { RecurringItemCode = "ELECTRICITY", RecurringItemName = "Electricity Bill", Description = "Electricity Bill", CategoryId = categories.FirstOrDefault(x => x.CategoryCode == Constants.CATEGORY_CODE_HOUSING).Id },
+                new RecurringItem { RecurringItemCode = "WATER", RecurringItemName = "Water Bill", Description = "Water Bill", CategoryId = categories.FirstOrDefault(x => x.CategoryCode == Constants.CATEGORY_CODE_HOUSING).Id },
+                new RecurringItem { RecurringItemCode = "INTERNET", RecurringItemName = "Internet Bill", Description = "Internet Bill", CategoryId = categories.FirstOrDefault(x => x.CategoryCode == Constants.CATEGORY_CODE_HOUSING).Id },
 
                 new RecurringItem { RecurringItemCode = "CARLOAN", RecurringItemName = "Grom", Description = "Grom", CategoryId = categories.FirstOrDefault(x => x.CategoryCode == Constants.CATEGORY_CODE_TRANSPORT).Id },
                 new RecurringItem { RecurringItemCode = "LRT", RecurringItemName = "LRT", Description = "LRT", CategoryId = categories.FirstOrDefault(x => x.CategoryCode == Constants.CATEGORY_CODE_TRANSPORT).Id },
@@ -84,7 +84,14 @@ namespace Server.Data
 
                 if(dbItem == null)
                 {
-                    await _recurringItemCollection.InsertOneAsync(item);
+                    try
+                    {
+                        await _recurringItemCollection.InsertOneAsync(item);
+                    }
+                    catch(Exception ex)
+                    {
+
+                    }
                 }
             });
         }

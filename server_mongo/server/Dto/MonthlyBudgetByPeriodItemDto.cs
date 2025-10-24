@@ -22,6 +22,8 @@ namespace Server.Dto
         public string CategoryCode { get; set; } = string.Empty;
         public string CategoryName { get; set; } = string.Empty;
 
+        public string SubCategory { get; set; } = string.Empty;
+
 
         [BsonRepresentation(BsonType.ObjectId)]
         public string RecurringItemId { get; set; } = string.Empty;
@@ -30,6 +32,8 @@ namespace Server.Dto
         public string RecurringItemDescription { get; set; } = string.Empty;
         public decimal PlannedBudget { get; set; } = 0;
         public decimal CurrentRunningAmount { get; set; } = 0;
+
+        public Dictionary<int, decimal> RunningAmountByPeriod { get; set; } = new Dictionary<int, decimal>();
 
     }
 }

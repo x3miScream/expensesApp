@@ -1,4 +1,5 @@
 using Server.Data;
+using Server.Middleware;
 
 const string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -20,6 +21,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<MongoDBService>();
 builder.Services.AddSingleton<MongoDbSeeder>();
 
+builder.Services.AddScoped<GlobalExceptionMiddleware>();
+
 var app = builder.Build();
 
 
@@ -38,6 +41,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 
 app.UseCors(MyAllowSpecificOrigins);

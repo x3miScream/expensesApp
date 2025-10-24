@@ -21,5 +21,8 @@ namespace Server.Entities
 
         [BsonRepresentation(BsonType.String)]
         public TransactionType TransactionType { get; set; } = TransactionType.Expense;
+
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string RecurringItemId { get; set; } = string.Empty;
     }
 }

@@ -44,7 +44,8 @@ namespace Server.Controllers
                                     TransactionType = outer.TransactionType,
                                     CategoryId = outer.CategoryId,
                                     CategoryData = inner,
-                                    Category = inner.CategoryName
+                                    Category = inner.CategoryName,
+                                    RecurringItemId = outer.RecurringItemId ?? string.Empty
                                 }
                 ).ToList();
 
@@ -68,6 +69,9 @@ namespace Server.Controllers
             //{
             //    return BadRequest($"Category with ID {transaction.CategoryId} does not exist.");
             //}
+            if (string.IsNullOrEmpty(transaction.RecurringItemId))
+                transaction.RecurringItemId = null;
+
             await _transactions.InsertOneAsync(transaction);
             return CreatedAtAction(nameof(GetById), new { id = transaction.Id }, transaction);
         }
@@ -76,12 +80,18 @@ namespace Server.Controllers
         [HttpPut]
         public async Task<ActionResult> Put([FromBody] Transaction transaction)
         {
+            if (string.IsNullOrEmpty(transaction.RecurringItemId))
+                transaction.RecurringItemId = null;
+
+
             var queryFilter = Builders<Transaction>.Filter.Eq(x => x.Id, transaction.Id);
 
             var updateDefinition = Builders<Transaction>.Update
                 .Set(x => x.Description, transaction.Description)
                 .Set(x => x.TransactionDateTime, transaction.TransactionDateTime)
-                .Set(x => x.Amount, transaction.Amount);
+                .Set(x => x.Amount, transaction.Amount)
+                .Set(x => x.CategoryId, transaction.CategoryId)
+                .Set(x => x.RecurringItemId, transaction.RecurringItemId);
 
             var updateResult = await _transactions.UpdateOneAsync(queryFilter, updateDefinition);
 

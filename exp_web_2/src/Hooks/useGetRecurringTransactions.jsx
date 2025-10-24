@@ -1,0 +1,26 @@
+import React from 'react';
+
+const useGetRecurringTransactions = () => {
+    const getRecurringTransactiosn = async (setData) => {
+        const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/recurringTransactions`;
+        const verb = 'GET';
+
+        const fetchObj = {
+            method: verb,
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include',
+            mode: 'cors'
+        };
+
+        const res = await fetch(url, fetchObj);
+        const data = await res.json();
+
+        setData(data);
+    };
+
+    return {
+        getRecurringTransactiosn
+    };
+};
+
+export default useGetRecurringTransactions;

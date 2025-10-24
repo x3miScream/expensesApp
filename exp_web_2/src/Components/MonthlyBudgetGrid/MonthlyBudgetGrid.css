@@ -1,6 +1,6 @@
 .budget-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); 
+    grid-template-columns: repeat(3, 1fr); 
     gap: 0.5rem; 
     padding: 0.5rem 0;
     font-size: 0.875rem;
@@ -13,12 +13,12 @@
 }
 @media (min-width: 640px) { /* sm: */
     .budget-grid {
-        grid-template-columns: repeat(6, 1fr);
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 @media (min-width: 1024px) { /* lg: */
     .budget-grid {
-        grid-template-columns: repeat(7, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 0.75rem;
     }
 }
@@ -60,6 +60,7 @@
 
 .budget-row {
     border-bottom: 1px solid #f3f4f6;
+    overflow-x: auto;
 }
 .budget-row:hover {
     background-color: #f9fafb;

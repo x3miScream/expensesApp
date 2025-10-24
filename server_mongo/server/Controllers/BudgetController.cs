@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using Server.Data;
 using Server.Dto;
@@ -15,6 +16,7 @@ namespace Server.Controllers
 
         private readonly IMongoCollection<Category>? _categoryCollection;
         private readonly IMongoCollection<RecurringItem>? _recurringItemCollection;
+        private readonly IMongoCollection<Transaction>? _transactionCollection;
 
         private readonly IMongoCollection<MonthlyBudget>? _monthlyBudgetCollection;
         private readonly IMongoCollection<MonthlyBudgetSetupItem>? _monthlyBudgetSetupItemCollection;
@@ -27,6 +29,7 @@ namespace Server.Controllers
 
             _categoryCollection = _mongoDBService._MongoDatabase.GetCollection<Category>(MongoDocumentTypeAttributeReader.GetMongoDocumentType<Category>());
             _recurringItemCollection = _mongoDBService._MongoDatabase.GetCollection<RecurringItem>(MongoDocumentTypeAttributeReader.GetMongoDocumentType<RecurringItem>());
+            _transactionCollection = _mongoDBService._MongoDatabase.GetCollection<Transaction>(MongoDocumentTypeAttributeReader.GetMongoDocumentType<Transaction>());
 
             _monthlyBudgetCollection = _mongoDBService._MongoDatabase.GetCollection<MonthlyBudget>(MongoDocumentTypeAttributeReader.GetMongoDocumentType<MonthlyBudget>());
             _monthlyBudgetSetupItemCollection = _mongoDBService._MongoDatabase.GetCollection<MonthlyBudgetSetupItem>(MongoDocumentTypeAttributeReader.GetMongoDocumentType<MonthlyBudgetSetupItem>());
@@ -137,33 +140,71 @@ namespace Server.Controllers
 
             for (int i = 0; i < monthlyBudgetByPeriodItems.Count; i++)
             {
-                var category = categories.FirstOrDefault(x => x.Id == recurringItems.FirstOrDefault(ri => ri.Id == monthlyBudgetByPeriodItems[i].RecurringItemId)?.CategoryId);
+                var recurringItem = recurringItems.FirstOrDefault(x => x.Id == monthlyBudgetByPeriodItems[i].RecurringItemId);
 
-                result.Add(new MonthlyBudgetByPeriodItemDto
+                if (recurringItem != null)
                 {
-                    MonthlyBudgetId = monthlyBudget.Id,
-                    MonthlyBudgetByPeriodId = monthlyBudgetByPeriod.Id,
-                    MonthlyBudgetByPeriodItemId = monthlyBudgetByPeriodItems[i].Id,
-                    Period = monthlyBudgetByPeriod.Period,
-                    RecurringItemId = monthlyBudgetByPeriodItems[i].RecurringItemId,
-                    RecurringItemCode = recurringItems.FirstOrDefault(x => x.Id == monthlyBudgetByPeriodItems[i].RecurringItemId)?.RecurringItemCode ?? string.Empty,
-                    RecurringItemName = recurringItems.FirstOrDefault(x => x.Id == monthlyBudgetByPeriodItems[i].RecurringItemId)?.RecurringItemName ?? string.Empty,
-                    RecurringItemDescription = recurringItems.FirstOrDefault(x => x.Id == monthlyBudgetByPeriodItems[i].RecurringItemId)?.Description ?? string.Empty,
-                    CategoryId = category?.Id ?? string.Empty,
-                    CategoryCode = category?.CategoryCode ?? string.Empty,
-                    CategoryName = category?.CategoryName ?? string.Empty,
-                    PlannedBudget = monthlyBudgetSetupitems.FirstOrDefault(x => x.MonthlyBudgetId == monthlyBudget.Id && x.RecurringItemId == monthlyBudgetByPeriodItems[i].RecurringItemId)?.PlannedBudget ?? 0,
-                });
+                    var category = categories.FirstOrDefault(x => x.Id == recurringItem.CategoryId);
+
+                    result.Add(new MonthlyBudgetByPeriodItemDto
+                    {
+                        MonthlyBudgetId = monthlyBudget.Id,
+                        MonthlyBudgetByPeriodId = monthlyBudgetByPeriod.Id,
+                        MonthlyBudgetByPeriodItemId = monthlyBudgetByPeriodItems[i].Id,
+                        Period = monthlyBudgetByPeriod.Period,
+                        RecurringItemId = monthlyBudgetByPeriodItems[i].RecurringItemId,
+                        RecurringItemCode = recurringItem.RecurringItemCode ?? string.Empty,
+                        RecurringItemName = recurringItem.RecurringItemName ?? string.Empty,
+                        RecurringItemDescription = recurringItem.Description ?? string.Empty,
+                        CategoryId = category?.Id ?? string.Empty,
+                        CategoryCode = category?.CategoryCode ?? string.Empty,
+                        CategoryName = category?.CategoryName ?? string.Empty,
+                        PlannedBudget = monthlyBudgetSetupitems.FirstOrDefault(x => x.MonthlyBudgetId == monthlyBudget.Id && x.RecurringItemId == monthlyBudgetByPeriodItems[i].RecurringItemId)?.PlannedBudget ?? 0,
+                    });
+                }
+                else
+                {
+                    await _monthlyBudgetByPeriodItemCollection.DeleteOneAsync(Builders<MonthlyBudgetByPeriodItem>.Filter.Eq(x => x.Id, monthlyBudgetByPeriodItems[i].RecurringItemId));
+                }
+
+                await ApplyTransactionsToBudgetCalculation(result);
             }
 
             return result;
         }
 
 
+        private async Task ApplyTransactionsToBudgetCalculation(List<MonthlyBudgetByPeriodItemDto> budgetItems)
+        {
+            var transactions = await _transactionCollection.Find(Builders<Transaction>.Filter.Empty).ToListAsync();
+
+            if(transactions.Any())
+            {
+                budgetItems.ForEach((budgetItem) => {
+                    var transactionsForRecurringItem = transactions.Where(x => x.RecurringItemId == budgetItem.RecurringItemId).ToList();
+
+                    transactionsForRecurringItem.ForEach((transaction) => {
+                        int transactionPeriod = PeriodUtils.GetPeriodFromDateTime(transaction.TransactionDateTime);
+                        if(budgetItem.RunningAmountByPeriod.ContainsKey(transactionPeriod))
+                        {
+                            budgetItem.RunningAmountByPeriod[transactionPeriod] += transaction.Amount;
+                        }
+                        else
+                        {
+                            budgetItem.RunningAmountByPeriod[transactionPeriod] = transaction.Amount;
+                        }
+                    });
+
+                    budgetItem.CurrentRunningAmount += transactions.Where(x => x.RecurringItemId == budgetItem.RecurringItemId).Sum(x => x.Amount);
+                });
+            }
+        }
+
+
 
         [HttpGet]
         [Route("getCurrentPeriodBudget/{budgetCode}")]
-        public async Task<ActionResult> GetCurrentBudget(string budgetCode)
+        public async Task<ActionResult<List<MonthlyBudgetByPeriodItemDto>>> GetCurrentBudget(string budgetCode)
         {
             int currentPeriod = PeriodUtils.GetCurrentPeriod();
 

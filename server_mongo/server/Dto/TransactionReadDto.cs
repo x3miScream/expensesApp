@@ -19,5 +19,8 @@ namespace Server.Dto
         public string Timestamp { get; set; } = string.Empty;
         public TransactionType TransactionType { get; set; } = TransactionType.Expense;
         public Category? CategoryData { get; set; } = null;
+
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string RecurringItemId { get; set; } = string.Empty;
     }
 }
