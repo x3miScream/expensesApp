@@ -5,7 +5,7 @@ import Home from './Features/Home/Home.jsx';
 import LoginScreen from './Components/Auth/LoginScreen.jsx';
 
 const ExpenseApp = () => {
-    const {authUser, ready} = useAuthContext({});
+    const {authUser, ready} = useAuthContext();
 
     return (
     <div className='App'>
