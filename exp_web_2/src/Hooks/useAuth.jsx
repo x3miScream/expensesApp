@@ -2,7 +2,7 @@ import React from 'react';
 
 const useAuth = () => {
     const login = async (loginObject, ) => {
-        const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/auth`;
+        const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/auth/login`;
         const verb = 'POST';
 
         const fetchObj = {
