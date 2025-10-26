@@ -166,9 +166,9 @@ namespace Server.Controllers
                 {
                     await _monthlyBudgetByPeriodItemCollection.DeleteOneAsync(Builders<MonthlyBudgetByPeriodItem>.Filter.Eq(x => x.Id, monthlyBudgetByPeriodItems[i].RecurringItemId));
                 }
-
-                await ApplyTransactionsToBudgetCalculation(result);
             }
+
+            await ApplyTransactionsToBudgetCalculation(result);
 
             return result;
         }
@@ -181,7 +181,9 @@ namespace Server.Controllers
             if(transactions.Any())
             {
                 budgetItems.ForEach((budgetItem) => {
-                    var transactionsForRecurringItem = transactions.Where(x => x.RecurringItemId == budgetItem.RecurringItemId).ToList();
+                    var transactionsForRecurringItem = transactions.Where(x => x.RecurringItemId == budgetItem.RecurringItemId 
+                        && x.TransactionDateTime >= PeriodUtils.GetPeriodStartDate(budgetItem.Period)
+                        && x.TransactionDateTime <= PeriodUtils.GetPeriodEndDate(budgetItem.Period)).ToList();
 
                     transactionsForRecurringItem.ForEach((transaction) => {
                         int transactionPeriod = PeriodUtils.GetPeriodFromDateTime(transaction.TransactionDateTime);

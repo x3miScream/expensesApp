@@ -1,11 +1,16 @@
-import React from 'react';
-import Home from './Features/Home/Home.jsx';
+import React, {useState} from 'react';
 import './App.css';
+import ExpenseApp from './ExpenseApp.jsx';
+import { AuthContextProvider } from './Context/AuthContext.jsx';
   
 // --- Main Application Component ---
 const App = () => {
   return (
-    <Home></Home>
+    <div className='App'>
+      <AuthContextProvider>
+        <ExpenseApp></ExpenseApp>
+      </AuthContextProvider>
+    </div>
   );
 };
 

@@ -44,6 +44,7 @@ const Home = () => {
   const toggleSidebar = useCallback(() => setIsSidebarOpen(prev => !prev), []);
 
   // New Expense Form State
+  const recurringItemRefs = useRef([]);
   const transactionIdRef = useRef('');
   const nameRef = useRef('');
   const amountRef = useRef(null);
@@ -217,6 +218,18 @@ const Home = () => {
   const TransactionFormContent = ({ onClose }) => {
     const handleSubmit = (e) => handleAddExpense(e, onClose, editTransactionData?.id);
 
+    const onCategorySelectChange = (e) => {
+      recurringItemRefs.current.forEach((item, index) => {
+        if(item.getAttribute('categoryId') !== e.target.value)
+        {
+          item.style.display = 'none';
+        }
+        else{
+          item.style.display = '';
+        }
+      });
+    };
+
     useEffect(() => {
       if(editTransactionData !== null && editTransactionData !== undefined)
       {
@@ -319,6 +332,7 @@ const Home = () => {
                     <select
                         id="category"
                         ref={categoryRef}
+                        onChange={onCategorySelectChange}
                         className="input-field"
                         style={{ appearance: 'none' }}
                     >
@@ -337,10 +351,10 @@ const Home = () => {
                         className="input-field"
                         style={{ appearance: 'none' }}
                     >
-                        <option key='0' value='' selected disabled></option>
+                        <option key='0' value='' selected></option>
 
-                        {recurringTransactions.map(recItem => (
-                            <option key={recItem.recurringItemId} value={recItem.recurringItemId}>{`${recItem.categoryName} | ${recItem.recurringItemName}`}</option>
+                        {recurringTransactions.map((recItem, index) => (
+                            <option ref={(el) => recurringItemRefs.current[index] = el} key={recItem.recurringItemId} categoryId={recItem.categoryId} value={recItem.recurringItemId}>{`${recItem.categoryName} | ${recItem.recurringItemName}`}</option>
                         ))}
                     </select>
                 </div>

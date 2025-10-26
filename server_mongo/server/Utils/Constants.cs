@@ -8,5 +8,7 @@
         public const string CATEGORY_CODE_ENTERTAINMENT = "ENTERTAINMENT";
         public const string CATEGORY_CODE_OTHERS = "OTH";
         public const string CATEGORY_CODE_SYSTEM = "SYS";
+
+        public const string RECURRINGITEM_CODE_DAILYEXPENSE = "DAYEXP";
     }
 }

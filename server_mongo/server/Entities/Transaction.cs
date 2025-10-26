@@ -7,7 +7,7 @@ using Server.Utils;
 namespace Server.Entities
 {
     [MongoDocumentType("transactions")]
-    public class Transaction
+    public class Transaction: UserEntityBase
     {
         [BsonId]
         [BsonElement("_id"), BsonRepresentation(BsonType.ObjectId)]

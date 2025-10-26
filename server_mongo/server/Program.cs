@@ -1,5 +1,7 @@
 using Server.Data;
+using Server.Interfaces;
 using Server.Middleware;
+using Server.Services;
 
 const string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -21,7 +23,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<MongoDBService>();
 builder.Services.AddSingleton<MongoDbSeeder>();
 
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 builder.Services.AddScoped<GlobalExceptionMiddleware>();
+builder.Services.AddScoped<AuthMiddleware>();
+
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -43,6 +50,7 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseMiddleware<AuthMiddleware>();
 
 
 app.UseCors(MyAllowSpecificOrigins);
