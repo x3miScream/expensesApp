@@ -4,6 +4,11 @@
     {
         public static int GetPeriodFromDateTime(DateTime dateTimeToGetPeriodFrom)
         {
+            int date = dateTimeToGetPeriodFrom.Day;
+
+            if (date > 27)
+                dateTimeToGetPeriodFrom = dateTimeToGetPeriodFrom.AddMonths(1);
+
             int year = dateTimeToGetPeriodFrom.Year;
             int month = dateTimeToGetPeriodFrom.Month;
 
@@ -18,8 +23,14 @@
         }
 
 
-        public static DateTime GetPeriodStartDate(int period) => new DateTime(period / 100, period % 100, 1);
+        public static DateTime GetPeriodStartDate(int period)
+        {
+            return new DateTime(period / 100, period % 100, 28).AddMonths(-1);
+        }
 
-        public static DateTime GetPeriodEndDate(int period) => new DateTime(period / 100, period % 100, 1).AddMonths(1).AddDays(-1);
+        public static DateTime GetPeriodEndDate(int period)
+        { 
+            return new DateTime(period / 100, period % 100, 27);
+        }
     }
 }

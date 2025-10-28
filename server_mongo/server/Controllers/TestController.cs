@@ -16,5 +16,22 @@ namespace Server.Controllers
 
             return Ok();
         }
+
+
+        [HttpGet]
+        [Route("testPeriods")]
+        public IActionResult TestPeriods()
+        {
+            int period = PeriodUtils.GetCurrentPeriod();
+
+            DateTime start = PeriodUtils.GetPeriodStartDate(period);
+            DateTime end = PeriodUtils.GetPeriodEndDate(period);
+
+            return Ok(new { 
+                CurrentPeriod = period,
+                StartDate = start,
+                EndDate = end
+            });
+        }
     }
 }

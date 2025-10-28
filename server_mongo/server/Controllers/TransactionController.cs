@@ -117,7 +117,7 @@ namespace Server.Controllers
 
             var queryFilter = Builders<Transaction>.Filter.Eq(x => x.Id, transaction.Id);
 
-            UpdateUserEntityBaseFields(transaction, true);
+            UpdateUserEntityBaseFields(transaction, false);
 
             var updateDefinition = Builders<Transaction>.Update
                 .Set(x => x.Description, transaction.Description)

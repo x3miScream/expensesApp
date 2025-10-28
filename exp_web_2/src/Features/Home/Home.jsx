@@ -96,8 +96,8 @@ const Home = () => {
       amount: parsedAmount,
       transactionType: transactionType === 'expense' ? 1 : 0,
       recurringItemId: recurringTransactionRef?.current?.value,
-      transactionDateTime: dateRef?.current?.value
-    }
+      transactionDateTime: new Date(dateRef?.current?.value + ` ${newExpense.timestamp.getHours()}:${newExpense.timestamp.getMinutes()}:${newExpense.timestamp.getSeconds()}`)
+    };
 
     if(transactionId === undefined || transactionId === null)
       createTransaction(newTransactionCRUD, getTransactions(setExpenses));

@@ -10,5 +10,8 @@
         public const string CATEGORY_CODE_SYSTEM = "SYS";
 
         public const string RECURRINGITEM_CODE_DAILYEXPENSE = "DAYEXP";
+        public const string RECURRINGITEM_CODE_MONTHLYEXPENSE = "MONTHEXP";
+
+        public const decimal MONTHLY_BUDGET_PLANNED = 9_457.75m;
     }
 }

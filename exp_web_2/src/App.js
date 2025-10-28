@@ -8,7 +8,7 @@ const App = () => {
   return (
     <div className='App'>
       <AuthContextProvider>
-        <ExpenseApp></ExpenseApp>
+        <ExpenseApp></ExpenseApp>  
       </AuthContextProvider>
     </div>
   );

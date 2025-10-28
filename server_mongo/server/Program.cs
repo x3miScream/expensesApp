@@ -49,15 +49,14 @@ if (app.Environment.IsDevelopment())
 }
 
 
-app.UseMiddleware<GlobalExceptionMiddleware>();
-app.UseMiddleware<AuthMiddleware>();
-
-
 app.UseCors(MyAllowSpecificOrigins);
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseMiddleware<AuthMiddleware>();
 
 app.MapControllers();
 

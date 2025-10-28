@@ -54,7 +54,9 @@ namespace Server.Controllers
                 var newRecord = new MonthlyBudgetByPeriod
                 {
                     MonthlyBudgetId = monthlyBudgetId,
-                    Period = period
+                    Period = period,
+                    PlannedMonthlyBudget = Constants.MONTHLY_BUDGET_PLANNED,
+                    BudgetAdjustment = 0m
                 };
 
                 await _monthlyBudgetByPeriodCollection.InsertOneAsync(newRecord);
@@ -80,12 +82,18 @@ namespace Server.Controllers
 
                 for (int i=0;i< setupItems.Count;i++)
                 {
-                    newItems.Add(new MonthlyBudgetByPeriodItem
+                    if (!(await _monthlyBudgetByPeriodItemCollection.Find(Builders<MonthlyBudgetByPeriodItem>.Filter.And(
+                        Builders<MonthlyBudgetByPeriodItem>.Filter.Eq(x => x.MonthlyBudgetByPeriodId, monthlyBudgetByPeriodId),
+                        Builders<MonthlyBudgetByPeriodItem>.Filter.Eq(x => x.RecurringItemId, setupItems[i].RecurringItemId)
+                        )).AnyAsync()))
                     {
-                        MonthlyBudgetByPeriodId = monthlyBudgetByPeriodId,
-                        RecurringItemId = setupItems[i].RecurringItemId,
-                        CurrentRunningAmount = 0
-                    });
+                        newItems.Add(new MonthlyBudgetByPeriodItem
+                        {
+                            MonthlyBudgetByPeriodId = monthlyBudgetByPeriodId,
+                            RecurringItemId = setupItems[i].RecurringItemId,
+                            CurrentRunningAmount = 0
+                        });
+                    }
                 }
 
                 await _monthlyBudgetByPeriodItemCollection.InsertManyAsync(newItems);
@@ -145,6 +153,7 @@ namespace Server.Controllers
                 if (recurringItem != null)
                 {
                     var category = categories.FirstOrDefault(x => x.Id == recurringItem.CategoryId);
+                    var budgetSetupItem = monthlyBudgetSetupitems.FirstOrDefault(x => x.RecurringItemId == monthlyBudgetByPeriodItems[i].RecurringItemId);
 
                     result.Add(new MonthlyBudgetByPeriodItemDto
                     {
@@ -161,6 +170,18 @@ namespace Server.Controllers
                         CategoryName = category?.CategoryName ?? string.Empty,
                         PlannedBudget = monthlyBudgetSetupitems.FirstOrDefault(x => x.MonthlyBudgetId == monthlyBudget.Id && x.RecurringItemId == monthlyBudgetByPeriodItems[i].RecurringItemId)?.PlannedBudget ?? 0,
                     });
+
+                    if (recurringItem.RecurringItemCode == Constants.RECURRINGITEM_CODE_MONTHLYEXPENSE)
+                    {
+                        result[(result.Count - 1)].PlannedBudget = (monthlyBudgetByPeriod.PlannedMonthlyBudget - (monthlyBudgetSetupitems.Sum(x => x.PlannedBudget)));
+                        Decimal.Round(result[(result.Count - 1)].PlannedBudget, 2);
+                    }
+
+                    if (recurringItem.RecurringItemCode == Constants.RECURRINGITEM_CODE_DAILYEXPENSE)
+                    {
+                        result[(result.Count - 1)].PlannedBudget = (monthlyBudgetByPeriod.PlannedMonthlyBudget - (monthlyBudgetSetupitems.Sum(x => x.PlannedBudget))) / 31;
+                        Decimal.Round(result[(result.Count - 1)].PlannedBudget, 2);
+                    }
                 }
                 else
                 {

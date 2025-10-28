@@ -33,9 +33,8 @@ namespace Server.Controllers.Base
 
                 entity.CreatedBy = _currentUserId;
                 entity.CreatedAt = currentDateTime;
+                entity.UserId = _currentUserId;
             }
-
-            entity.UserId = _currentUserId;
             entity.UpdatedBy = _currentUserId;
             entity.UpdatedAt = currentDateTime;
         }

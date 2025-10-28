@@ -7,7 +7,7 @@ const useAuthContext = () => {
 };
 
 const getAuthUser = async (callBackSetUser, callBackSetReady) => {
-    const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/Auth`;
+    const url = `${process.env.REACT_APP_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/Auth/getCurrentAuthUser`;
         const fetchObject = {
             method: 'GET',
             // headers: {'Content-Type': "application/json"},

@@ -29,6 +29,7 @@ namespace Server.Data
             await SeedRecurringItemDataAsync();
             await SeedMonthlyBudgetDataAsync();
             await SeedMonthlyBudgetSetupItemsDataAsync();
+            await ClearOrphanedMonthlyBudgetSetupItemsDataAsync();
         }
 
         public async Task SeedCategoryDataAsync()
@@ -43,7 +44,8 @@ namespace Server.Data
                 new Category(){ CategoryCode = Constants.CATEGORY_CODE_SYSTEM, CategoryName = "System" }
             };
 
-            dataToSeed.ForEach(async (category) => {
+            foreach(Category category in dataToSeed)
+            {
                 var queryFilter = Builders<Category>.Filter.Eq(x => x.CategoryCode, category.CategoryCode);
                 var dbItem = await _categoryCollection.Find(queryFilter).FirstOrDefaultAsync();
 
@@ -51,7 +53,7 @@ namespace Server.Data
                 {
                     await _categoryCollection.InsertOneAsync(category);
                 }
-            });
+            }
         }
 
         public async Task SeedRecurringItemDataAsync()
@@ -75,25 +77,27 @@ namespace Server.Data
                 new RecurringItem { RecurringItemCode = "MOBILE", RecurringItemName = "Mobile Internet", Description = "Mobile Internet", CategoryId = categories.FirstOrDefault(x => x.CategoryCode == Constants.CATEGORY_CODE_ENTERTAINMENT).Id },
                 new RecurringItem { RecurringItemCode = "YOUTUBE", RecurringItemName = "Youtube", Description = "Youtube", CategoryId = categories.FirstOrDefault(x => x.CategoryCode == Constants.CATEGORY_CODE_ENTERTAINMENT).Id },
 
-                new RecurringItem { RecurringItemCode = "DAYEXP", RecurringItemName = "Daily Expenses", Description = "Daily Expenses", CategoryId = categories.FirstOrDefault(x => x.CategoryCode == Constants.CATEGORY_CODE_SYSTEM).Id }
+                new RecurringItem { RecurringItemCode = Constants.RECURRINGITEM_CODE_DAILYEXPENSE, RecurringItemName = "Daily Expenses", Description = "Daily Expenses", CategoryId = categories.FirstOrDefault(x => x.CategoryCode == Constants.CATEGORY_CODE_SYSTEM).Id },
+                new RecurringItem { RecurringItemCode = Constants.RECURRINGITEM_CODE_MONTHLYEXPENSE, RecurringItemName = "Monthly Expenses", Description = "Monthly Expenses", CategoryId = categories.FirstOrDefault(x => x.CategoryCode == Constants.CATEGORY_CODE_SYSTEM).Id }
             };
 
-            dataToSeed.ForEach(async (item) => {
+            foreach(RecurringItem item in dataToSeed)
+            {
                 var queryFilter = Builders<RecurringItem>.Filter.Eq(x => x.RecurringItemCode, item.RecurringItemCode);
                 var dbItem = await _recurringItemCollection.Find(queryFilter).FirstOrDefaultAsync();
 
-                if(dbItem == null)
+                if (dbItem == null)
                 {
                     try
                     {
                         await _recurringItemCollection.InsertOneAsync(item);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
 
                     }
                 }
-            });
+            }
         }
 
 
@@ -109,7 +113,8 @@ namespace Server.Data
 
             };
 
-            dataToSeed.ForEach(async (budget) => {
+            foreach (MonthlyBudget budget in dataToSeed)
+            {
                 var queryFilter = Builders<MonthlyBudget>.Filter.Eq(x => x.BudgetCode, budget.BudgetCode);
                 var dbItem = await _monthlyBudgetCollection.Find(queryFilter).FirstOrDefaultAsync();
 
@@ -117,7 +122,7 @@ namespace Server.Data
                 {
                     await _monthlyBudgetCollection.InsertOneAsync(budget);
                 }
-            });
+            }
         }
 
 
@@ -141,7 +146,8 @@ namespace Server.Data
             var tvRecItem = recurringItems.FirstOrDefault(x => x.RecurringItemCode == "TV");
             var mobileRecItem = recurringItems.FirstOrDefault(x => x.RecurringItemCode == "MOBILE");
             var youtubeRecItem = recurringItems.FirstOrDefault(x => x.RecurringItemCode == "YOUTUBE");
-            var dayExpRecItem = recurringItems.FirstOrDefault(x => x.RecurringItemCode == "DAYEXP");
+            var dayExpRecItem = recurringItems.FirstOrDefault(x => x.RecurringItemCode == Constants.RECURRINGITEM_CODE_DAILYEXPENSE);
+            var monthExpRecItem = recurringItems.FirstOrDefault(x => x.RecurringItemCode == Constants.RECURRINGITEM_CODE_MONTHLYEXPENSE);
 
             if (defaultBudget != null)
             {
@@ -161,10 +167,11 @@ namespace Server.Data
                     new MonthlyBudgetSetupItem(){ MonthlyBudgetId = defaultBudgetId, RecurringItemId = mobileRecItem.Id, PlannedBudget = 50, Adjustment = 0 },
                     new MonthlyBudgetSetupItem(){ MonthlyBudgetId = defaultBudgetId, RecurringItemId = youtubeRecItem.Id, PlannedBudget = 20.9M, Adjustment = 0 },
                     new MonthlyBudgetSetupItem(){ MonthlyBudgetId = defaultBudgetId, RecurringItemId = dayExpRecItem.Id, PlannedBudget = 0, Adjustment = 0 },
+                    new MonthlyBudgetSetupItem(){ MonthlyBudgetId = defaultBudgetId, RecurringItemId = monthExpRecItem.Id, PlannedBudget = 0, Adjustment = 0 }
 
                 };
 
-                dataToSeed.ForEach(async (item) =>
+                foreach(MonthlyBudgetSetupItem item in dataToSeed)
                 {
                     var filterBuilder = Builders<MonthlyBudgetSetupItem>.Filter;
                     var queryFilter = filterBuilder.Eq(x => x.MonthlyBudgetId, defaultBudget.Id)
@@ -176,7 +183,32 @@ namespace Server.Data
                     {
                         await _monthlyBudgetSetupItemCollection.InsertOneAsync(item);
                     }
-                });
+                }
+            }
+        }
+
+
+
+
+        public async Task ClearOrphanedMonthlyBudgetSetupItemsDataAsync()
+        {
+            var defaultBudget = await _monthlyBudgetCollection.Find(Builders<MonthlyBudget>.Filter.Eq(x => x.BudgetCode, "DEFAULT")).FirstOrDefaultAsync();
+            var recurringItems = await _recurringItemCollection.Find(FilterDefinition<RecurringItem>.Empty).ToListAsync();
+
+            if (defaultBudget != null)
+            {
+                var monthlyBudgetSetupItems = await _monthlyBudgetSetupItemCollection.Find(Builders<MonthlyBudgetSetupItem>.Filter.Eq(x => x.MonthlyBudgetId, defaultBudget.Id)).ToListAsync();
+
+                foreach(MonthlyBudgetSetupItem item in monthlyBudgetSetupItems)
+                {
+                    if (!recurringItems.Any(x => x.Id == item.RecurringItemId))
+                    {
+                        var filterBuilder = Builders<MonthlyBudgetSetupItem>.Filter;
+                        var queryFilter = filterBuilder.Eq(x => x.MonthlyBudgetId, defaultBudget.Id)
+                            & filterBuilder.Eq(x => x.Id, item.Id);
+                        await _monthlyBudgetSetupItemCollection.DeleteOneAsync(queryFilter);
+                    }
+                }
             }
         }
     }

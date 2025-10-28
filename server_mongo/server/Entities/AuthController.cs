@@ -94,18 +94,21 @@ namespace Server.Entities
         [Route("getCurrentAuthUser")]
         public async Task<ActionResult<string>> GetCurrentAuthUser()
         {
-            User foundUser = await _userCollection.Find(Builders<User>.Filter.Eq(x => x.Id, _currentUserId)).FirstOrDefaultAsync();
-
-            if (foundUser == null)
-                return BadRequest("User Not Found");
-
-            AuthDto dto = new AuthDto()
+            if (!string.IsNullOrEmpty(_currentUserId))
             {
-                UserName = foundUser.UserName
-            };
+                User foundUser = await _userCollection.Find(Builders<User>.Filter.Eq(x => x.Id, _currentUserId)).FirstOrDefaultAsync();
 
-            return Ok(dto);
+                if (foundUser == null)
+                    return BadRequest("User Not Found");
 
+                AuthDto dto = new AuthDto()
+                {
+                    UserName = foundUser.UserName
+                };
+
+                return Ok(dto);
+            }
+            return NotFound();
         }
 
         [HttpDelete(Name = "Logout")]

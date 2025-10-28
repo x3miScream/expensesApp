@@ -14,6 +14,8 @@ namespace Server.Entities
         public string MonthlyBudgetId { get; set; } = string.Empty;
 
         public int Period { get; set; } = 0;
+        public decimal PlannedMonthlyBudget { get; set; } = 0;
+        public decimal BudgetAdjustment { get; set; } = 0;
 
     }
 }
