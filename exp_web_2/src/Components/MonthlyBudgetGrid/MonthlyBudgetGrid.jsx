@@ -4,7 +4,7 @@ import SummaryRow from './SummaryRow.jsx';
 
 import './MonthlyBudgetGrid.css';
 
-import useGetMonthlyBudgetSummary from '../../Hooks/useGetMonthlyBudgetSummary.jsx';
+import useGetMonthlyBudget from '../../Hooks/useGetMonthlyBudget.jsx';
 
 const MonthlyBudgetGrid = ({ months }) => {
     const gridHeaderRef = useRef();
@@ -15,10 +15,12 @@ const MonthlyBudgetGrid = ({ months }) => {
 
     const gridDataRefs = useRef([]);
     const [monthlyBudgetData, setMonthlyBudgetData] = useState([]);
-    const {getMonthlyBudgetSummary} = useGetMonthlyBudgetSummary();
+    const [monthlyBudgetSummaryData, setMonthlyBudgetSummaryData] = useState({});
+    const {getMonthlyBudgetDetails, getMonthlyBudgetSummary} = useGetMonthlyBudget();
 
     useEffect(() => {
-        getMonthlyBudgetSummary(setMonthlyBudgetData);
+        getMonthlyBudgetDetails(setMonthlyBudgetData);
+        getMonthlyBudgetSummary(setMonthlyBudgetSummaryData);
     }, []);
 
     useEffect(() => {
@@ -129,39 +131,39 @@ const MonthlyBudgetGrid = ({ months }) => {
                 <h4 className="summary-title-small">Monthly Budget Summary ({currentMonth})</h4>
                 <SummaryRow 
                     title="Monthly Exp Planned (Budget)" 
-                    value={monthlyExpPlanned} 
+                    value={monthlyBudgetSummaryData.totalMonthlyBudget} 
                     valueClassName="text-indigo-600 font-extrabold" 
                 />
                 <SummaryRow 
                     title="Monthly Exp Actual (Total Spent)" 
-                    value={totalActualSpentCurrentMonth} 
+                    value={monthlyBudgetSummaryData.totalMonthlyExpenses} 
                     valueClassName="text-red-600 font-extrabold" 
                 />
                 <SummaryRow 
                     title="Monthly Net Remaining" 
-                    value={totalRemaining} 
-                    valueClassName={`font-extrabold ${totalRemaining >= 0 ? 'text-green-600' : 'text-red-600'}`} 
+                    value={monthlyBudgetSummaryData.monthlyRemainingBudget} 
+                    valueClassName={`font-extrabold ${monthlyBudgetSummaryData.monthlyRemainingBudget >= 0 ? 'text-green-600' : 'text-red-600'}`} 
                 />
             </div>
 
             {/* 2. Weekly Status and Grand Totals */}
             <div>
                 <h4 className="summary-title-small">Weekly Status & Grand Totals</h4>
-                <SummaryRow title="Daily Exp Planned" value={dailyExpPlanned} valueClassName="text-gray-700" />
+                <SummaryRow title="Daily Exp Planned" value={monthlyBudgetSummaryData.dailyRemainingBudget} valueClassName="text-gray-700" />
                 
-                {mockWeeklyData.map((week, index) => (
+                {monthlyBudgetSummaryData.weeklyRemainingBudget.map((week, index) => (
                     <SummaryRow 
                         key={index} 
-                        title={week.label} 
-                        value={week.value} 
-                        valueClassName={`font-bold ${week.value >= 0 ? 'text-green-600' : 'text-red-600'}`} 
+                        title={`Remain Week ${week.weekNumber}`} 
+                        value={week.weeklyRemainingBudget} 
+                        valueClassName={`font-bold ${week.weeklyRemainingBudget >= 0 ? 'text-green-600' : 'text-red-600'}`} 
                         isBudget={true}
-                        totalAllocation={weeklyAllocation}
+                        totalAllocation={week.weeklyPlannedBudget}
                     />
                 ))}
                     <div className="summary-total-container">
-                    <SummaryRow title="TOTAL SPENT (Current Month)" value={totalActualSpentCurrentMonth} valueClassName="text-red-700 font-extrabold text-lg" />
-                    <SummaryRow title="TOTAL REMAINING (Budget - Actual)" value={totalRemaining} valueClassName={`font-extrabold text-lg ${totalRemaining >= 0 ? 'text-green-700' : 'text-red-700'}`} />
+                    <SummaryRow title="TOTAL SPENT (Current Month)" value={monthlyBudgetSummaryData.totalMonthlyExpenses} valueClassName="text-red-700 font-extrabold text-lg" />
+                    <SummaryRow title="TOTAL REMAINING (Budget - Actual)" value={monthlyBudgetSummaryData.monthlyRemainingBudget} valueClassName={`font-extrabold text-lg ${totalRemaining >= 0 ? 'text-green-700' : 'text-red-700'}`} />
                 </div>
             </div>
 

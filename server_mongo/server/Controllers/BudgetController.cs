@@ -106,6 +106,157 @@ namespace Server.Controllers
 
 
 
+        private List<MonthlyBudgetByPeriodWeeklySummaryDto> GenerateBlankWeeklyBudgetSummary()
+        {
+            int totalDaysInAWeek = 0;
+            int period = PeriodUtils.GetCurrentPeriod();
+            DateTime periodStartDate = PeriodUtils.GetPeriodStartDate(period);
+            DateTime periodEndDate = PeriodUtils.GetPeriodEndDate(period);
+
+            DayOfWeek startDayOfWeek = periodStartDate.DayOfWeek;
+            DayOfWeek endDayOfWeek = periodEndDate.DayOfWeek;
+
+            DateTime weekRunningDate = periodStartDate;
+
+            List<MonthlyBudgetByPeriodWeeklySummaryDto> monthlyBudgetByPeriodWeeklySummaryDtos = new List<MonthlyBudgetByPeriodWeeklySummaryDto>();
+            MonthlyBudgetByPeriodWeeklySummaryDto weeklySummary = new MonthlyBudgetByPeriodWeeklySummaryDto()
+            {
+                WeekStartDate = periodStartDate
+            };
+
+            while (weekRunningDate <= periodEndDate)
+            {
+                startDayOfWeek = weekRunningDate.DayOfWeek;
+
+                if (startDayOfWeek == DayOfWeek.Monday)
+                {
+                    weeklySummary = new MonthlyBudgetByPeriodWeeklySummaryDto()
+                    {
+                        WeekStartDate = weekRunningDate
+                    };
+
+                    totalDaysInAWeek = 0;
+                }
+
+                totalDaysInAWeek++;
+
+
+                if (startDayOfWeek == DayOfWeek.Sunday)
+                {
+                    weeklySummary.WeekEndDate = weekRunningDate;
+                    weeklySummary.WeekNumber = (monthlyBudgetByPeriodWeeklySummaryDtos.Count + 1);
+                    weeklySummary.TotalDaysInWeek = totalDaysInAWeek;
+
+                    monthlyBudgetByPeriodWeeklySummaryDtos.Add(weeklySummary);
+                }
+
+
+                weekRunningDate = weekRunningDate.AddDays(1);
+            }
+
+            if (startDayOfWeek != DayOfWeek.Sunday)
+            {
+                weeklySummary.WeekEndDate = weekRunningDate.AddDays(-1);
+                weeklySummary.WeekNumber = (monthlyBudgetByPeriodWeeklySummaryDtos.Count + 1);
+                weeklySummary.TotalDaysInWeek = totalDaysInAWeek;
+
+                monthlyBudgetByPeriodWeeklySummaryDtos.Add(weeklySummary);
+            }
+
+            return monthlyBudgetByPeriodWeeklySummaryDtos;
+        }
+
+
+        private async Task ApplyTransactionsToWeeklyBudgetSummary(MonthlyBudgetByPeriodSummaryDto result)
+        {
+            result.WeeklyRemainingBudget = GenerateBlankWeeklyBudgetSummary();
+
+            var recurringItewmDailyExpense = await _recurringItemCollection.Find(Builders<RecurringItem>.Filter.Eq(x => x.RecurringItemCode, Constants.RECURRINGITEM_CODE_DAILYEXPENSE)).FirstOrDefaultAsync();
+            var recurringItewmMonthlyExpense = await _recurringItemCollection.Find(Builders<RecurringItem>.Filter.Eq(x => x.RecurringItemCode, Constants.RECURRINGITEM_CODE_MONTHLYEXPENSE)).FirstOrDefaultAsync();
+
+            int period = PeriodUtils.GetCurrentPeriod();
+            DateTime periodStartDate = PeriodUtils.GetPeriodStartDate(period);
+            DateTime periodEndDate = PeriodUtils.GetPeriodEndDate(period);
+
+            var transactions = await _transactionCollection.Find(Builders<Transaction>.Filter.And(
+                Builders<Transaction>.Filter.Gte(x => x.TransactionDateTime, periodStartDate),
+                Builders<Transaction>.Filter.Lte(x => x.TransactionDateTime, periodEndDate)
+                )).ToListAsync();
+
+            transactions = transactions.Where(x => (string.IsNullOrEmpty(x.RecurringItemId) || x.RecurringItemId == recurringItewmDailyExpense.Id)).ToList();
+
+            for(int i=0;i< result.WeeklyRemainingBudget.Count;i++)
+            {
+                var weeklyTransactions = transactions.Where(x => x.TransactionDateTime >= result.WeeklyRemainingBudget[i].WeekStartDate
+                    && x.TransactionDateTime <= result.WeeklyRemainingBudget[i].WeekEndDate).ToList();
+
+                result.WeeklyRemainingBudget[i].WeeklyPlannedBudget = result.DailyRemainingBudget * result.WeeklyRemainingBudget[i].TotalDaysInWeek;
+                result.WeeklyRemainingBudget[i].WeeklyRemainingBudget = result.WeeklyRemainingBudget[i].WeeklyPlannedBudget;
+                result.WeeklyRemainingBudget[i].WeeklyTotalExpenses = weeklyTransactions.Sum(x => x.Amount);
+                result.WeeklyRemainingBudget[i].WeeklyRemainingBudget += result.WeeklyRemainingBudget[i].WeeklyTotalExpenses;
+                result.WeeklyRemainingBudget[i].WeeklyRemainingBudget = Decimal.Round(result.WeeklyRemainingBudget[i].WeeklyRemainingBudget, 2);
+            }
+
+            var transactionsToday = transactions.Where(x => x.TransactionDateTime.Date == DateTime.Today).ToList();
+
+            result.DailyRemainingBudget += transactionsToday.Sum(x => x.Amount);
+            result.TotalMonthlyExpenses = transactions.Sum(x => x.Amount);
+            result.MonthlyRemainingBudget += result.TotalMonthlyExpenses;
+        }
+
+
+        private async Task<MonthlyBudgetByPeriodSummaryDto> GenerateMonthlyBudgetByPeriodSummaryDto(string budgetCode)
+        {
+            MonthlyBudgetByPeriodSummaryDto result = new MonthlyBudgetByPeriodSummaryDto();
+            int currentPeriod = PeriodUtils.GetCurrentPeriod();
+
+
+            var monthlyBudget = await _monthlyBudgetCollection.Find(Builders<MonthlyBudget>.Filter.Eq(x => x.BudgetCode, budgetCode)).FirstOrDefaultAsync();
+
+            if (monthlyBudget == null)
+                return result;
+
+            var monthlyBudgetByPeriod = _monthlyBudgetByPeriodCollection.Find(Builders<MonthlyBudgetByPeriod>.Filter.And(
+                Builders<MonthlyBudgetByPeriod>.Filter.Eq(x => x.MonthlyBudgetId, monthlyBudget.Id),
+                Builders<MonthlyBudgetByPeriod>.Filter.Eq(x => x.Period, currentPeriod)
+                )).FirstOrDefault();
+
+            if (monthlyBudgetByPeriod == null)
+                return result;
+
+            var monthlyBudgetByPeriodItems = await _monthlyBudgetByPeriodItemCollection.Find(
+                Builders<MonthlyBudgetByPeriodItem>.Filter.Eq(x => x.MonthlyBudgetByPeriodId, monthlyBudgetByPeriod.Id)
+                ).ToListAsync();
+
+            if (!monthlyBudgetByPeriodItems.Any())
+                return result;
+
+
+            var monthlyBudgetSetupitems = await _monthlyBudgetSetupItemCollection.Find(
+                Builders<MonthlyBudgetSetupItem>.Filter.Eq(x => x.MonthlyBudgetId, monthlyBudget.Id)
+                ).ToListAsync();
+
+            if (!monthlyBudgetSetupitems.Any())
+                return result;
+
+
+
+            result.DailyRemainingBudget = (monthlyBudgetByPeriod.PlannedMonthlyBudget - (monthlyBudgetSetupitems.Sum(x => x.PlannedBudget))) / 31;
+            result.DailyRemainingBudget = Decimal.Round(result.DailyRemainingBudget, 2);
+
+
+            result.MonthlyRemainingBudget = (monthlyBudgetByPeriod.PlannedMonthlyBudget - (monthlyBudgetSetupitems.Sum(x => x.PlannedBudget)));
+            result.MonthlyRemainingBudget = Decimal.Round(result.MonthlyRemainingBudget, 2);
+
+
+            result.TotalMonthlyBudget = result.MonthlyRemainingBudget;
+
+
+            await ApplyTransactionsToWeeklyBudgetSummary(result);
+
+            return result;
+        }
+
 
 
         private async Task<List<MonthlyBudgetByPeriodItemDto>> GenerateMonthlyBudgetByPeriodItemDtos(string budgetCode)
@@ -174,13 +325,13 @@ namespace Server.Controllers
                     if (recurringItem.RecurringItemCode == Constants.RECURRINGITEM_CODE_MONTHLYEXPENSE)
                     {
                         result[(result.Count - 1)].PlannedBudget = (monthlyBudgetByPeriod.PlannedMonthlyBudget - (monthlyBudgetSetupitems.Sum(x => x.PlannedBudget)));
-                        Decimal.Round(result[(result.Count - 1)].PlannedBudget, 2);
+                        result[(result.Count - 1)].PlannedBudget = Decimal.Round(result[(result.Count - 1)].PlannedBudget, 2);
                     }
 
                     if (recurringItem.RecurringItemCode == Constants.RECURRINGITEM_CODE_DAILYEXPENSE)
                     {
                         result[(result.Count - 1)].PlannedBudget = (monthlyBudgetByPeriod.PlannedMonthlyBudget - (monthlyBudgetSetupitems.Sum(x => x.PlannedBudget))) / 31;
-                        Decimal.Round(result[(result.Count - 1)].PlannedBudget, 2);
+                        result[(result.Count - 1)].PlannedBudget = Decimal.Round(result[(result.Count - 1)].PlannedBudget, 2);
                     }
                 }
                 else
@@ -199,15 +350,31 @@ namespace Server.Controllers
         {
             var transactions = await _transactionCollection.Find(Builders<Transaction>.Filter.Empty).ToListAsync();
 
-            if(transactions.Any())
+            var recurringItewmDailyExpense = await _recurringItemCollection.Find(Builders<RecurringItem>.Filter.Eq(x => x.RecurringItemCode, Constants.RECURRINGITEM_CODE_DAILYEXPENSE)).FirstOrDefaultAsync();
+            var recurringItewmMonthlyExpense = await _recurringItemCollection.Find(Builders<RecurringItem>.Filter.Eq(x => x.RecurringItemCode, Constants.RECURRINGITEM_CODE_MONTHLYEXPENSE)).FirstOrDefaultAsync();
+
+            if (transactions.Any())
             {
                 budgetItems.ForEach((budgetItem) => {
                     var transactionsForRecurringItem = transactions.Where(x => x.RecurringItemId == budgetItem.RecurringItemId 
                         && x.TransactionDateTime >= PeriodUtils.GetPeriodStartDate(budgetItem.Period)
                         && x.TransactionDateTime <= PeriodUtils.GetPeriodEndDate(budgetItem.Period)).ToList();
 
+                    switch (budgetItem.RecurringItemCode)
+                    {
+                        case Constants.RECURRINGITEM_CODE_MONTHLYEXPENSE:
+                            transactionsForRecurringItem = transactions.Where(x => (string.IsNullOrEmpty(x.RecurringItemId) || x.RecurringItemId == recurringItewmDailyExpense.Id)
+                            && x.TransactionDateTime >= PeriodUtils.GetPeriodStartDate(budgetItem.Period)
+                            && x.TransactionDateTime <= PeriodUtils.GetPeriodEndDate(budgetItem.Period)).ToList();
+                        break;
+                        case Constants.RECURRINGITEM_CODE_DAILYEXPENSE:
+                            transactionsForRecurringItem = transactions.Where(x => (string.IsNullOrEmpty(x.RecurringItemId) || x.RecurringItemId == recurringItewmDailyExpense.Id) && x.TransactionDateTime.Date == DateTime.Today).ToList();
+                        break;
+                    };
+
                     transactionsForRecurringItem.ForEach((transaction) => {
                         int transactionPeriod = PeriodUtils.GetPeriodFromDateTime(transaction.TransactionDateTime);
+
                         if(budgetItem.RunningAmountByPeriod.ContainsKey(transactionPeriod))
                         {
                             budgetItem.RunningAmountByPeriod[transactionPeriod] += transaction.Amount;
@@ -250,6 +417,17 @@ namespace Server.Controllers
 
             var monthlyBudgetByPeriodItemDtos = await GenerateMonthlyBudgetByPeriodItemDtos(budgetCode);
 
+
+            return Ok(monthlyBudgetByPeriodItemDtos);
+        }
+
+
+
+        [HttpGet]
+        [Route("getCurrentPeriodBudgetSummary/{budgetCode}")]
+        public async Task<ActionResult<MonthlyBudgetByPeriodSummaryDto>> GetCurrentPeriodBudgetSummary(string budgetCode)
+        {
+            var monthlyBudgetByPeriodItemDtos = await GenerateMonthlyBudgetByPeriodSummaryDto(budgetCode);
 
             return Ok(monthlyBudgetByPeriodItemDtos);
         }
