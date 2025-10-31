@@ -25,12 +25,12 @@
 
         public static DateTime GetPeriodStartDate(int period)
         {
-            return new DateTime(period / 100, period % 100, 28).AddMonths(-1);
+            return new DateTime(period / 100, period % 100, 28, 00, 00, 00).AddMonths(-1);
         }
 
         public static DateTime GetPeriodEndDate(int period)
         { 
-            return new DateTime(period / 100, period % 100, 27);
+            return new DateTime(period / 100, period % 100, 27, 23, 59, 59);
         }
     }
 }

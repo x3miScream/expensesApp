@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import Sidebar from '../../Components/Sidebar/Sidebar.jsx';
 import OverallBalanceSection from '../../Components/OverallBalanceSection/OverallBalanceSection.jsx';
 import SummaryTiles from '../../Components/SummaryTiles/SummaryTiles.jsx';
 import MonthlyBudgetGrid from '../../Components/MonthlyBudgetGrid/MonthlyBudgetGrid.jsx';
@@ -36,12 +35,6 @@ const Home = () => {
   const {saveLoadingState, createTransaction, updateTransaction, getTransactions, deleteTransaction} = useTransactionCreateUdpateDelete();
   const {getCategories} = useCategoryCRUD();
   const {getRecurringTransactiosn} = useGetRecurringTransactions();
-
-  // State for Collapsible Sidebar
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-  // Handler for Sidebar Toggle
-  const toggleSidebar = useCallback(() => setIsSidebarOpen(prev => !prev), []);
 
   // New Expense Form State
   const recurringItemRefs = useRef([]);
@@ -430,19 +423,9 @@ const Home = () => {
   };
 
 
-  // --- Main Render ---
-  const sidebarMarginClass = isSidebarOpen ? 'main-content-expanded' : 'main-content-collapsed';
-
   return (
     <>
-      <div className="app-container">
-        {/* 1. Sidebar */}
-        <Sidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
-
-        {/* 2. Main Content Area */}
-        <div className={`main-content ${sidebarMarginClass}`}>
-          
-          {/* Top Header/Search Bar (Simulated) */}
+        {/* Top Header/Search Bar (Simulated) */}
           <div className="card" style={{ padding: '1rem', marginBottom: '1.5rem', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)' }}>
               
               {/* Hamburger Button for Mobile/Tablet */}
@@ -467,12 +450,7 @@ const Home = () => {
           </div>
 
           {/* 1. BALANCE SECTION (Overall + Daily/Weekly/Monthly) */}
-          <OverallBalanceSection
-            total={totalExpenses}
-            daily={dailyBalance}
-            weekly={weeklyBalance}
-            monthly={monthlyBalance}
-          />
+          <OverallBalanceSection />
           
           {/* 2. SUMMARY TILES (Income/Expense/Category) */}
           <SummaryTiles categories={categories} expenses={expenses} />
@@ -523,7 +501,6 @@ const Home = () => {
                   </div>
               </div>
           </div>
-        </div>
         
         {/* FLOATING ACTION BUTTON (FAB) */}
         <button
@@ -552,8 +529,6 @@ const Home = () => {
               />
           )}
         </Modal>
-
-      </div>
     </>
   );
 };

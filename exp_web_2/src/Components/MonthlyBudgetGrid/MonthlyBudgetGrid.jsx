@@ -19,6 +19,7 @@ const MonthlyBudgetGrid = ({ months }) => {
     const {getMonthlyBudgetDetails, getMonthlyBudgetSummary} = useGetMonthlyBudget();
 
     useEffect(() => {
+        console.log('asdf');
         getMonthlyBudgetDetails(setMonthlyBudgetData);
         getMonthlyBudgetSummary(setMonthlyBudgetSummaryData);
     }, []);
@@ -28,26 +29,6 @@ const MonthlyBudgetGrid = ({ months }) => {
     }, [months, monthlyBudgetData]);
 
     const currentMonth = months[0]; 
-
-    const monthlyExpPlanned = useMemo(() => 
-        monthlyBudgetData.reduce((sum, item) => sum + item.plannedBudget, 0), [monthlyBudgetData]
-    );
-
-    const totalActualSpentCurrentMonth = useMemo(() => 
-        monthlyBudgetData.reduce((sum, item) => sum + (item.runningAmountByPeriod[currentMonth] || 0), 0), [monthlyBudgetData, currentMonth]
-    );
-
-    const dailyExpPlanned = monthlyExpPlanned / 30; 
-    const weeklyAllocation = monthlyExpPlanned / (30/7); 
-    const totalRemaining = monthlyExpPlanned - totalActualSpentCurrentMonth;
-
-    const mockWeeklyData = [
-        { label: 'Remain Week 1', value: 87.01, totalAllocation: weeklyAllocation },
-        { label: 'Remain Week 2', value: weeklyAllocation * 0.5, totalAllocation: weeklyAllocation },
-        { label: 'Remain Week 3', value: weeklyAllocation * 0.8, totalAllocation: weeklyAllocation },
-        { label: 'Remain Week 4', value: weeklyAllocation, totalAllocation: weeklyAllocation },
-        { label: 'Remain Week 5', value: 320.60, totalAllocation: 320.60 },
-    ];
 
     const updateGridColumns = () => {
         let gridColsTemplate = '2fr 1fr';
@@ -149,9 +130,9 @@ const MonthlyBudgetGrid = ({ months }) => {
             {/* 2. Weekly Status and Grand Totals */}
             <div>
                 <h4 className="summary-title-small">Weekly Status & Grand Totals</h4>
-                <SummaryRow title="Daily Exp Planned" value={monthlyBudgetSummaryData.dailyRemainingBudget} valueClassName="text-gray-700" />
+                <SummaryRow title="Daily Exp Remaining" value={monthlyBudgetSummaryData.dailyRemainingBudget} valueClassName="text-gray-700" />
                 
-                {monthlyBudgetSummaryData.weeklyRemainingBudget.map((week, index) => (
+                {monthlyBudgetSummaryData.weeklyRemainingBudget?.map((week, index) => (
                     <SummaryRow 
                         key={index} 
                         title={`Remain Week ${week.weekNumber}`} 
@@ -163,7 +144,7 @@ const MonthlyBudgetGrid = ({ months }) => {
                 ))}
                     <div className="summary-total-container">
                     <SummaryRow title="TOTAL SPENT (Current Month)" value={monthlyBudgetSummaryData.totalMonthlyExpenses} valueClassName="text-red-700 font-extrabold text-lg" />
-                    <SummaryRow title="TOTAL REMAINING (Budget - Actual)" value={monthlyBudgetSummaryData.monthlyRemainingBudget} valueClassName={`font-extrabold text-lg ${totalRemaining >= 0 ? 'text-green-700' : 'text-red-700'}`} />
+                    <SummaryRow title="TOTAL REMAINING (Budget - Actual)" value={monthlyBudgetSummaryData.monthlyRemainingBudget} valueClassName={`font-extrabold text-lg ${monthlyBudgetSummaryData.monthlyRemainingBudget >= 0 ? 'text-green-700' : 'text-red-700'}`} />
                 </div>
             </div>
 
