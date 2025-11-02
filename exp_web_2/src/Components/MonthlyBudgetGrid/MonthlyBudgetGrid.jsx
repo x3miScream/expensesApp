@@ -14,6 +14,7 @@ const MonthlyBudgetGrid = ({ months }) => {
     const budgetRef = useRef();
 
     const gridDataRefs = useRef([]);
+    const gridMonthColumnRefs = useRef([]);
     const [monthlyBudgetData, setMonthlyBudgetData] = useState([]);
     const [monthlyBudgetSummaryData, setMonthlyBudgetSummaryData] = useState({});
     const {getMonthlyBudgetDetails, getMonthlyBudgetSummary} = useGetMonthlyBudget();
@@ -38,7 +39,9 @@ const MonthlyBudgetGrid = ({ months }) => {
             gridColsTemplate = '2fr ' + gridColsTemplate;
 
         months.forEach((item, index) => {
-            gridColsTemplate += ' 1fr';
+            const monthColComputedStyle = window.getComputedStyle(gridMonthColumnRefs.current[index]);
+            if(monthColComputedStyle.display !== 'none')
+                gridColsTemplate += ' 1fr';
         });
 
         gridHeaderRef.current.style.gridTemplateColumns = gridColsTemplate;
@@ -61,10 +64,10 @@ const MonthlyBudgetGrid = ({ months }) => {
             {/* Header fixed columns */}
             <div ref={gridHeaderRef} id='qwer' className="budget-grid budget-grid-header">
                 <div ref={categoryColRef} className="label-col hidden-lg">Category</div>
-                <div ref={itemColRef} className="label-col grid-col-2-sm-1">Item</div>
+                <div ref={itemColRef} className="label-col grid-col-1-sm-1">Item</div>
                 <div ref={budgetRef} className="label-col text-right">Budget</div>
-                {months.map(month => (
-                    <div key={month} className="data-col text-right hidden-sm budget-month-col">
+                {months.map((month, index) => (
+                    <div ref={el => gridMonthColumnRefs.current[index] = el} key={month} className={`data-col text-right ${currentMonth === month ? 'hidden-sm budget-current-month-col' : 'hidden-sm budget-month-col'}`}>
                         {month}
                     </div>
                 ))}
@@ -81,7 +84,7 @@ const MonthlyBudgetGrid = ({ months }) => {
                         <div className="text-gray-700 hidden-lg budget-item-col">{item.categoryName}</div>
                         
                         {/* Item Name */}
-                        <div className="grid-col-2-sm-1 font-medium budget-item-name">{item.recurringItemName}</div>
+                        <div className="grid-col-1-sm-1 font-medium budget-item-name">{item.recurringItemName}</div>
                         
                         {/* Budget */}
                         <div className="text-right font-medium text-indigo-600">
@@ -94,7 +97,7 @@ const MonthlyBudgetGrid = ({ months }) => {
                             const actualColorClass = actual > item.plannedBudget ? 'text-red-500' : 'text-gray-700';
                             
                             return (
-                                <div key={month} className={`text-right hidden-sm ${actualColorClass}`}>
+                                <div key={month} className={`text-right ${currentMonth === month ? '' : 'hidden-sm'} ${actualColorClass}`}>
                                     {actual ? formatCurrency(actual) : '-'}
                                 </div>
                             );

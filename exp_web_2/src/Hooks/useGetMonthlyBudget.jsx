@@ -31,8 +31,6 @@ const useGetMonthlyBudget = () => {
         };
 
         const res = await fetch(url, fetchObj);
-        console.log('res')
-        console.log(res)
         const data = await res.json();
 
         setData(data);

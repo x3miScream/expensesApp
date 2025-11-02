@@ -46,6 +46,11 @@
 .budget-month-col {
     display: none;
 }
+
+.budget-current-month-col{
+    display: block;
+}
+
 @media (min-width: 640px) {
     .budget-month-col {
         display: block;
