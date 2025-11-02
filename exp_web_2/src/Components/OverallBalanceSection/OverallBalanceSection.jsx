@@ -21,6 +21,10 @@ const OverallBalanceSection = () => {
                 <h2 className={`balance-amount ${(Math.abs(monthlyBudgetSummaryData?.totalRunningExpenses) > monthlyBudgetSummaryData?.totalRunningExpensesExpected ? ' text-red-300' : '')}`}>
                     {formatCurrency(Math.abs(monthlyBudgetSummaryData?.totalRunningExpenses))} / {formatCurrency(monthlyBudgetSummaryData?.totalRunningExpensesExpected)}
                 </h2>
+
+                <h2 className={`balance-amount text-s ${(Math.abs(monthlyBudgetSummaryData?.totalRunningExpensesOverall) > monthlyBudgetSummaryData?.totalRunningExpensesExpectedOverall ? ' text-red-300' : '')}`}>
+                    {formatCurrency(Math.abs(monthlyBudgetSummaryData?.totalRunningExpensesOverall))} / {formatCurrency(monthlyBudgetSummaryData?.totalRunningExpensesExpectedOverall)}
+                </h2>
             </div>
         </div>
 
@@ -37,8 +41,9 @@ const OverallBalanceSection = () => {
                         <div>
                             <p className="metric-title">{metric.title}</p>
                             <p className={`metric-value ${isPositive ? 'text-green-300' : 'text-red-300'}`}>
-                                {formatCurrency(metric.reamining)} - [{metric.expenses} / {metric.planned}]
+                                {formatCurrency(metric.reamining)}
                             </p>
+                            <p className='text-s'>[{metric.expenses} / {metric.planned}]</p>
                         </div>
                         <metric.icon className="w-5 h-5" style={{ width: '1.25rem', height: '1.25rem', color: '#93c5fd', opacity: 0.6 }} />
                     </div>

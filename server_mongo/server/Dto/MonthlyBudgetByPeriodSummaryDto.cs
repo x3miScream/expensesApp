@@ -37,6 +37,11 @@ namespace Server.Dto
         public decimal TotalRunningExpenses { get; set; } = 0;
         public decimal TotalRunningExpensesExpected { get; set; } = 0;
 
+
+        public decimal TotalRunningExpensesOverall { get; set; } = 0;
+        public decimal TotalRunningExpensesExpectedOverall { get; set; } = 0;
+
+
         public List<MonthlyBudgetByPeriodWeeklySummaryDto> WeeklyRemainingBudget { get; set; } = new List<MonthlyBudgetByPeriodWeeklySummaryDto>();
         public MonthlyBudgetByPeriodWeeklySummaryDto CurrentWeeklyRemainingBudget { get; set; } = new MonthlyBudgetByPeriodWeeklySummaryDto();
     }

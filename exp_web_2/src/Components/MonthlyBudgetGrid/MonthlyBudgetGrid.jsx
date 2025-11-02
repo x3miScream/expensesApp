@@ -19,7 +19,6 @@ const MonthlyBudgetGrid = ({ months }) => {
     const {getMonthlyBudgetDetails, getMonthlyBudgetSummary} = useGetMonthlyBudget();
 
     useEffect(() => {
-        console.log('asdf');
         getMonthlyBudgetDetails(setMonthlyBudgetData);
         getMonthlyBudgetSummary(setMonthlyBudgetSummaryData);
     }, []);

@@ -214,16 +214,18 @@ namespace Server.Controllers
             result.MonthlyRemainingBudget += result.TotalMonthlyExpenses;
 
 
-
-            for(int i=0;i< monthlyBudgetSetupItems.Count;i++)
+            for (int i=0;i< monthlyBudgetSetupItems.Count;i++)
             {
                 if (transactionsUpToDate.Any(x => x.RecurringItemId == monthlyBudgetSetupItems[i].RecurringItemId && (x.RecurringItemId != recurringItewmDailyExpense.Id && x.RecurringItemId != recurringItewmMonthlyExpense.Id)))
                 {
-                    result.TotalRunningExpenses += transactionsUpToDate.Where(x => x.RecurringItemId == monthlyBudgetSetupItems[i].RecurringItemId).Sum(x => x.Amount);
-                    result.TotalRunningExpensesExpected += monthlyBudgetSetupItems[i].PlannedBudget;
+                    result.TotalRunningExpensesOverall += transactionsUpToDate.Where(x => x.RecurringItemId == monthlyBudgetSetupItems[i].RecurringItemId).Sum(x => x.Amount);
+                    result.TotalRunningExpensesExpectedOverall += monthlyBudgetSetupItems[i].PlannedBudget;
                 }
             }
             
+            result.TotalRunningExpensesExpectedOverall += (result.TotalDailyBudget * (int)((DateTime.Today - result.PeriodStartDate).TotalDays + 1));
+            result.TotalRunningExpensesOverall += transactionsUpToDate.Where(x => string.IsNullOrEmpty(x.RecurringItemId) || x.RecurringItemId == recurringItewmDailyExpense.Id).Sum(x => x.Amount);
+
             result.TotalRunningExpensesExpected += (result.TotalDailyBudget * (int)((DateTime.Today - result.PeriodStartDate).TotalDays + 1));
             result.TotalRunningExpenses += transactionsUpToDate.Where(x => string.IsNullOrEmpty(x.RecurringItemId) || x.RecurringItemId == recurringItewmDailyExpense.Id).Sum(x => x.Amount);
         }

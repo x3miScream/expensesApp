@@ -24,7 +24,7 @@ const ExpenseApp = () => {
 
       <div className="app-container">
         {/* 1. Sidebar */}
-        <Sidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
+        {authUser ? <Sidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} /> : <></>}
 
         {/* 2. Main Content Area */}
         <div className={`main-content ${sidebarMarginClass}`}>

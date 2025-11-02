@@ -280,6 +280,9 @@ body {
 .text-green-300 { color: #86efac; }
 .text-red-300 { color: #fca5a5; }
 
+.text-s {font-size:small;}
+.text-xs {font-size:smaller;}
+
 /* --- Summary Tiles --- */
 .summary-tiles-grid {
     display: grid;
