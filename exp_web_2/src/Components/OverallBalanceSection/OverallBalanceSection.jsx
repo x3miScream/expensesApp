@@ -43,7 +43,7 @@ const OverallBalanceSection = () => {
                             <p className={`metric-value ${isPositive ? 'text-green-300' : 'text-red-300'}`}>
                                 {formatCurrency(metric.reamining)}
                             </p>
-                            <p className='text-s'>[{metric.expenses} / {metric.planned}]</p>
+                            <p className='text-s'>[{formatCurrency(metric.expenses)} / {formatCurrency(metric.planned)}]</p>
                         </div>
                         <metric.icon className="w-5 h-5" style={{ width: '1.25rem', height: '1.25rem', color: '#93c5fd', opacity: 0.6 }} />
                     </div>
