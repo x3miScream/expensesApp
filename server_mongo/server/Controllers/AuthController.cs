@@ -5,11 +5,12 @@ using MongoDB.Driver;
 using Server.Controllers.Base;
 using Server.Data;
 using Server.Dto.Auth;
+using Server.Entities;
 using Server.Interfaces;
 using Server.Services;
 using Server.Utils;
 
-namespace Server.Entities
+namespace Server.Controllers
 {
     [ApiController]
     [Route("api/auth")]
@@ -111,7 +112,8 @@ namespace Server.Entities
             return NotFound();
         }
 
-        [HttpDelete(Name = "Logout")]
+        [HttpDelete]
+        [Route("logout")]
         public async Task<ActionResult<string>> Logout()
         {
 

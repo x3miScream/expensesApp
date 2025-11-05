@@ -1,6 +1,11 @@
 import React, {useState} from 'react';
 import { DollarSign } from 'lucide-react';
 import { DUMMY_CREDENTIALS } from '../../data/dummyData.jsx';
+import useAuth from '../../Hooks/useAuth.jsx';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '../../Context/AuthContext.jsx';
+
+import './LoginScreen.css';
 
 // --- Login Component ---
 
@@ -11,7 +16,37 @@ const LoginScreen = ({ onLogin }) => {
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    const {login} = useAuth();
+    const navigate = useNavigate();
+    const {setAuthUser} = useAuthContext();
+
     const handleAuth = async (e) => {
+        e.preventDefault();
+        setError(null);
+        setIsLoading(true);
+
+        const loginDto = {
+            userEmail: email,
+            password: password
+        };
+
+        const loginPromise = login(loginDto);
+
+        loginPromise
+            .then((data) => {
+                console.log('yes');
+                console.log(data);
+            })
+            .catch((error) => {
+                setError('Invalid credentials.');
+            })
+            .finally(() => {
+                setIsLoading(false);
+                navigate("/")
+            });
+    };
+
+    const handleAuthOld = async (e) => {
         e.preventDefault();
         setError(null);
         setIsLoading(true);

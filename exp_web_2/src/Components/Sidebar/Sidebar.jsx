@@ -1,23 +1,23 @@
-import React from 'react';
-import {  BarChart2, DollarSign, Calendar, Tag, Clock, ChevronLeft, ChevronRight, Menu, Settings, Users } from 'lucide-react';
+import React, {useCallback} from 'react';
+import {  BarChart2, DollarSign, User, LogOut, Tag, Menu, Settings } from 'lucide-react';
+import {useAuthContext} from '../../Context/AuthContext.jsx';
+import useAuth from '../../Hooks/useAuth.jsx';
 
 import './Sidebar.css';
 
 
 const Sidebar = ({ isOpen, onToggle }) => {
+    const {logout} = useAuth();
+
     const currentWidthClass = isOpen ? 'sidebar-expanded' : 'sidebar-collapsed';
-    
+    const {authUser, ready} = useAuthContext();
+
     // Links with placeholder icons
     const links = [
         { name: 'Dashboard', icon: BarChart2, active: true },
         { name: 'Your Shop', icon: Tag, active: false },
         { name: 'Pay Merchant', icon: DollarSign, active: false },
-        { name: 'Orders', icon: Calendar, active: false },
         { name: 'Reports', icon: Settings, active: false },
-        { name: 'Collections', icon: Users, active: false },
-        { name: 'Repayments', icon: Clock, active: false },
-        { name: 'Wallet', icon: Tag, active: false },
-        { name: 'Manage', icon: Settings, active: false }
     ];
 
     return (
@@ -50,6 +50,30 @@ const Sidebar = ({ isOpen, onToggle }) => {
               <span className={isOpen ? '' : 'nav-link-text-hidden'}>{item.name}</span>
             </div>
           ))}
+
+          {/* User & Logout Section */}
+          <div className="mt-4 pt-4 border-t border-slate-700">
+              {authUser && (
+                <div 
+                    className={`nav-link ${isOpen ? '' : 'nav-link-collapsed'}`}
+                    style={{ marginBottom: '0.5rem', cursor: 'default' }}
+                >
+                    <User className="w-5 h-5 flex-shrink-0" style={{ width: '1.25rem', height: '1.25rem' }} />
+                    <span className={isOpen ? 'text-sm text-indigo-200 truncate' : 'nav-link-text-hidden'}>
+                        {authUser.userName}
+                    </span>
+                </div>
+              )}
+              
+              <button
+                  onClick={logout}
+                  className={`nav-link w-full text-left bg-red-600/30 hover:bg-red-700/50 ${isOpen ? '' : 'nav-link-collapsed'}`}
+                  style={{ color: '#fca5a5', transition: 'background-color 0.15s' }}
+              >
+                  <LogOut className="w-5 h-5 flex-shrink-0" style={{ width: '1.25rem', height: '1.25rem' }} />
+                  <span className={isOpen ? '' : 'nav-link-text-hidden'}>Sign Out</span>
+              </button>
+          </div>
         </nav>
       </div>
     );
