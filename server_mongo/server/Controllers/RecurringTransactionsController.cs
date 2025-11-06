@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using Server.Controllers.Base;
 using Server.Data;
 using Server.Dto;
 using Server.Entities;
@@ -9,14 +10,15 @@ namespace Server.Controllers
 {
     [ApiController]
     [Route("api/recurringTransactions")]
-    public class RecurringTransactionsController : ControllerBase
+    public class RecurringTransactionsController : ApiBaseController
     {
         private readonly MongoDBService _mongoDBService;
 
         private readonly IMongoCollection<Category>? _categoryCollection;
         private readonly IMongoCollection<RecurringItem>? _recurringItemCollection;
 
-        public RecurringTransactionsController(MongoDBService mongoDBService)
+        public RecurringTransactionsController(MongoDBService mongoDBService, IHttpContextAccessor httpContextAccessor)
+            : base(httpContextAccessor)
         {
             _mongoDBService = mongoDBService;
             _categoryCollection = _mongoDBService._MongoDatabase.GetCollection<Category>(MongoDocumentTypeAttributeReader.GetMongoDocumentType<Category>());
@@ -29,8 +31,8 @@ namespace Server.Controllers
         {
             List<RecurringItemDto> result = new List<RecurringItemDto>();
 
-            List<Category> categories = await _categoryCollection.Find(Builders<Category>.Filter.Empty).ToListAsync();
-            List<RecurringItem> recurringItems = await _recurringItemCollection.Find(Builders<RecurringItem>.Filter.Empty).ToListAsync();
+            List<Category> categories = await _categoryCollection.Find(ApplyUserFilter(Builders<Category>.Filter.Empty)).ToListAsync();
+            List<RecurringItem> recurringItems = await _recurringItemCollection.Find(ApplyUserFilter(Builders<RecurringItem>.Filter.Empty)).ToListAsync();
 
             if(recurringItems.Any())
             {

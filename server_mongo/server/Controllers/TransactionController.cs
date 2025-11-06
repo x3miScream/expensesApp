@@ -33,7 +33,7 @@ namespace Server.Controllers
         {
             if (string.IsNullOrEmpty(transaction.RecurringItemId))
             {
-                var recurringTransactionDailyExpense = await _recurringItemCollection.Find(Builders<RecurringItem>.Filter.Eq(x => x.RecurringItemCode, Constants.RECURRINGITEM_CODE_DAILYEXPENSE)).FirstOrDefaultAsync();
+                var recurringTransactionDailyExpense = await _recurringItemCollection.Find(ApplyUserFilter<RecurringItem>(Builders<RecurringItem>.Filter.Eq(x => x.RecurringItemCode, Constants.RECURRINGITEM_CODE_DAILYEXPENSE))).FirstOrDefaultAsync();
 
                 if (recurringTransactionDailyExpense == null)
                     return false;
@@ -56,9 +56,9 @@ namespace Server.Controllers
         {
             List<TransactionReadDto> transactionsDto = new List<TransactionReadDto>();
 
-            List<Category> categories = await _categoryCollection.Find(FilterDefinition<Category>.Empty).ToListAsync();
+            List<Category> categories = await _categoryCollection.Find(ApplyUserFilter(FilterDefinition<Category>.Empty)).ToListAsync();
 
-            List<Transaction> transactions = await _transactionCollection.Find(FilterDefinition<Transaction>.Empty).ToListAsync();
+            List<Transaction> transactions = await _transactionCollection.Find(ApplyUserFilter<Transaction>(FilterDefinition<Transaction>.Empty)).ToListAsync();
 
             transactionsDto = transactions.Join(categories,
                                 outer => outer.CategoryId,
@@ -86,6 +86,7 @@ namespace Server.Controllers
         public async Task<IActionResult> GetById(string id)
         {
             var queryFilter = Builders<Transaction>.Filter.Eq(x => x.Id, id);
+            ApplyUserFilter(ref queryFilter);
             var transaction = await _transactionCollection.Find(queryFilter).FirstOrDefaultAsync();
 
             return transaction is not null ? Ok(transaction) : NotFound();
@@ -94,7 +95,7 @@ namespace Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Transaction transaction)
         {
-            var categoryExists = await _categoryCollection.Find(Builders<Category>.Filter.Eq(x => x.Id, transaction.CategoryId)).AnyAsync();
+            var categoryExists = await _categoryCollection.Find(ApplyUserFilter(Builders<Category>.Filter.Eq(x => x.Id, transaction.CategoryId))).AnyAsync();
             if (!categoryExists)
             {
                 return BadRequest($"Category with ID {transaction.CategoryId} does not exist.");
@@ -102,7 +103,7 @@ namespace Server.Controllers
 
             await DefaultTransactionWithEmptyRecurringItemToDailyExpense(transaction);
 
-            UpdateUserEntityBaseFields(transaction, true);
+            ApplyUserBaseFieldUpdate(transaction, true);
 
             await _transactionCollection.InsertOneAsync(transaction);
             return CreatedAtAction(nameof(GetById), new { id = transaction.Id }, transaction);
@@ -117,7 +118,7 @@ namespace Server.Controllers
 
             var queryFilter = Builders<Transaction>.Filter.Eq(x => x.Id, transaction.Id);
 
-            UpdateUserEntityBaseFields(transaction, false);
+            ApplyUserBaseFieldUpdate(transaction, false);
 
             var updateDefinition = Builders<Transaction>.Update
                 .Set(x => x.Description, transaction.Description)
@@ -127,6 +128,8 @@ namespace Server.Controllers
                 .Set(x => x.RecurringItemId, transaction.RecurringItemId)
                 .Set(x => x.UpdatedBy, transaction.UpdatedBy)
                 .Set(x => x.UpdatedAt, transaction.UpdatedAt);
+
+            ApplyUserBaseFieldUpdate(ref updateDefinition, false);
 
             var updateResult = await _transactionCollection.UpdateOneAsync(queryFilter, updateDefinition);
 

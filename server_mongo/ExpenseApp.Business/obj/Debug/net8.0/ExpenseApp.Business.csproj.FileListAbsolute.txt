@@ -1,0 +1,15 @@
+D:\Projects\ExpApp\Dev\server_mongo\ExpenseApp.Business\bin\Debug\net8.0\ExpenseApp.Business.exe
+D:\Projects\ExpApp\Dev\server_mongo\ExpenseApp.Business\bin\Debug\net8.0\ExpenseApp.Business.deps.json
+D:\Projects\ExpApp\Dev\server_mongo\ExpenseApp.Business\bin\Debug\net8.0\ExpenseApp.Business.runtimeconfig.json
+D:\Projects\ExpApp\Dev\server_mongo\ExpenseApp.Business\bin\Debug\net8.0\ExpenseApp.Business.dll
+D:\Projects\ExpApp\Dev\server_mongo\ExpenseApp.Business\bin\Debug\net8.0\ExpenseApp.Business.pdb
+D:\Projects\ExpApp\Dev\server_mongo\ExpenseApp.Business\obj\Debug\net8.0\ExpenseApp.Business.GeneratedMSBuildEditorConfig.editorconfig
+D:\Projects\ExpApp\Dev\server_mongo\ExpenseApp.Business\obj\Debug\net8.0\ExpenseApp.Business.AssemblyInfoInputs.cache
+D:\Projects\ExpApp\Dev\server_mongo\ExpenseApp.Business\obj\Debug\net8.0\ExpenseApp.Business.AssemblyInfo.cs
+D:\Projects\ExpApp\Dev\server_mongo\ExpenseApp.Business\obj\Debug\net8.0\ExpenseApp.Business.csproj.CoreCompileInputs.cache
+D:\Projects\ExpApp\Dev\server_mongo\ExpenseApp.Business\obj\Debug\net8.0\ExpenseApp.Business.sourcelink.json
+D:\Projects\ExpApp\Dev\server_mongo\ExpenseApp.Business\obj\Debug\net8.0\ExpenseApp.Business.dll
+D:\Projects\ExpApp\Dev\server_mongo\ExpenseApp.Business\obj\Debug\net8.0\refint\ExpenseApp.Business.dll
+D:\Projects\ExpApp\Dev\server_mongo\ExpenseApp.Business\obj\Debug\net8.0\ExpenseApp.Business.pdb
+D:\Projects\ExpApp\Dev\server_mongo\ExpenseApp.Business\obj\Debug\net8.0\ExpenseApp.Business.genruntimeconfig.cache
+D:\Projects\ExpApp\Dev\server_mongo\ExpenseApp.Business\obj\Debug\net8.0\ref\ExpenseApp.Business.dll

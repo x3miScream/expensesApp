@@ -45,27 +45,11 @@ namespace Server.Middleware
                 {
                     jwtToken = context?.Request?.Cookies?[_appSettings["Authentication:AuthJWTTokenName"]?.ToString()].ToString();
                 }
-                
-                Console.WriteLine($"Cookies : {context?.Request?.Cookies?.Count}");
-
-                foreach (KeyValuePair<string, string> cookie in context?.Request?.Cookies)
-                {
-                    Console.WriteLine($"Cookie [{cookie.Key}] : {cookie.Value}");
-                }
-
-                
-                
-                Console.WriteLine($"setting : {_appSettings["Authentication:AuthJWTTokenName"]}");
-                Console.WriteLine($"endpoint : {endpoint}");
-                Console.WriteLine($"jwtToken : {jwtToken}");
 
 
                 if (!string.IsNullOrEmpty(jwtToken))
                 {
                     var claimsPrincipal = _authService.ValidateJWTToken(jwtToken, out errors);
-                    
-                    Console.WriteLine(claimsPrincipal);
-                    Console.WriteLine(errors);
                     
                     if (!string.IsNullOrEmpty(errors) || claimsPrincipal == null)
                     {

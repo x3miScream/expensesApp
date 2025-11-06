@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using Server.Controllers.Base;
 using Server.Data;
 using Server.Entities;
 using Server.Utils;
@@ -8,11 +9,12 @@ namespace Server.Controllers
 {
     [Route("api/categories")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class CategoryController : ApiBaseController
     {
         private readonly MongoDBService _mongoDBService;
         private readonly IMongoCollection<Category>? _categories;
-        public CategoryController(MongoDBService mongoDBService) 
+        public CategoryController(MongoDBService mongoDBService, IHttpContextAccessor httpContextAccessor)
+            : base(httpContextAccessor)
         { 
             _mongoDBService = mongoDBService;
             _categories = _mongoDBService._MongoDatabase.GetCollection<Category>(MongoDocumentTypeAttributeReader.GetMongoDocumentType<Category>());
@@ -24,7 +26,7 @@ namespace Server.Controllers
         [HttpGet]
         public async Task<ActionResult<Category>> Get()
         {
-            var categories = await _categories.Find(FilterDefinition<Category>.Empty).ToListAsync();
+            var categories = await _categories.Find(ApplyUserFilter(FilterDefinition<Category>.Empty)).ToListAsync();
 
             return Ok(categories);
         }
@@ -36,6 +38,7 @@ namespace Server.Controllers
         public async Task<ActionResult<Category>> GetById(string id)
         {
             var queryFilter = Builders<Category>.Filter.Eq(x => x.Id, id);
+            ApplyUserFilter(ref queryFilter);
             var category = await _categories.Find(queryFilter).FirstOrDefaultAsync();
 
             return category is not null ? Ok(category) : NotFound();
@@ -45,6 +48,7 @@ namespace Server.Controllers
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] Category category)
         {
+            ApplyUserBaseFieldUpdate(category, true);
             await _categories.InsertOneAsync(category);
             return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
         }
@@ -55,9 +59,13 @@ namespace Server.Controllers
         {
             var queryFilter = Builders<Category>.Filter.Eq(x => x.Id, category.Id);
 
+            ApplyUserFilter<Category>(ref queryFilter);
+
             var updateDefinition = Builders<Category>.Update
                 .Set(x => x.CategoryName, category.CategoryName)
                 .Set(x => x.CategoryCode, category.CategoryCode);
+
+            ApplyUserBaseFieldUpdate(ref updateDefinition, false);
 
             var updateResult = await _categories.UpdateOneAsync(queryFilter, updateDefinition);
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using Server.Controllers.Base;
 using Server.Data;
 using Server.Dto;
 using Server.Entities;
@@ -10,7 +11,7 @@ namespace Server.Controllers
 {
     [Route("api/budgets")]
     [ApiController]
-    public class BudgetController: ControllerBase
+    public class BudgetController: ApiBaseController
     {
         private readonly MongoDBService _mongoDBService;
 
@@ -23,7 +24,8 @@ namespace Server.Controllers
         private readonly IMongoCollection<MonthlyBudgetByPeriod>? _monthlyBudgetByPeriodCollection;
         private readonly IMongoCollection<MonthlyBudgetByPeriodItem>? _monthlyBudgetByPeriodItemCollection;
 
-        public BudgetController(MongoDBService mongoDBService)
+        public BudgetController(MongoDBService mongoDBService, IHttpContextAccessor httpContextAccessor)
+            : base(httpContextAccessor)
         {
             _mongoDBService = mongoDBService;
 
@@ -46,8 +48,8 @@ namespace Server.Controllers
                 Builders<MonthlyBudgetByPeriod>.Filter.Eq(x => x.MonthlyBudgetId, monthlyBudgetId),
                 Builders<MonthlyBudgetByPeriod>.Filter.Eq(x => x.Period, period)
             );
-
-            var existingRecord = _monthlyBudgetByPeriodCollection.Find(queryFilter).FirstOrDefault();
+            
+            var existingRecord = _monthlyBudgetByPeriodCollection.Find(ApplyUserFilter(queryFilter)).FirstOrDefault();
 
             if(existingRecord == null)
             {
@@ -58,6 +60,8 @@ namespace Server.Controllers
                     PlannedMonthlyBudget = Constants.MONTHLY_BUDGET_PLANNED,
                     BudgetAdjustment = 0m
                 };
+
+                ApplyUserBaseFieldUpdate(newRecord, isNew: true);
 
                 await _monthlyBudgetByPeriodCollection.InsertOneAsync(newRecord);
 
@@ -74,7 +78,7 @@ namespace Server.Controllers
         private async Task<bool> CreateMonthlyBudgetByPeriodItems(string monthlyBudgetId, string monthlyBudgetByPeriodId)
         {
             var queryFilter = Builders<MonthlyBudgetSetupItem>.Filter.Eq(x => x.MonthlyBudgetId, monthlyBudgetId);
-            var setupItems = await _monthlyBudgetSetupItemCollection.Find(queryFilter).ToListAsync();
+            var setupItems = await _monthlyBudgetSetupItemCollection.Find(ApplyUserFilter(queryFilter)).ToListAsync();
 
             if(setupItems.Any())
             {
@@ -82,17 +86,20 @@ namespace Server.Controllers
 
                 for (int i=0;i< setupItems.Count;i++)
                 {
-                    if (!(await _monthlyBudgetByPeriodItemCollection.Find(Builders<MonthlyBudgetByPeriodItem>.Filter.And(
+                    if (!(await _monthlyBudgetByPeriodItemCollection.Find(ApplyUserFilter(Builders<MonthlyBudgetByPeriodItem>.Filter.And(
                         Builders<MonthlyBudgetByPeriodItem>.Filter.Eq(x => x.MonthlyBudgetByPeriodId, monthlyBudgetByPeriodId),
                         Builders<MonthlyBudgetByPeriodItem>.Filter.Eq(x => x.RecurringItemId, setupItems[i].RecurringItemId)
-                        )).AnyAsync()))
+                        ))).AnyAsync()))
                     {
-                        newItems.Add(new MonthlyBudgetByPeriodItem
+                        var newRecord = new MonthlyBudgetByPeriodItem
                         {
                             MonthlyBudgetByPeriodId = monthlyBudgetByPeriodId,
                             RecurringItemId = setupItems[i].RecurringItemId,
                             CurrentRunningAmount = 0
-                        });
+                        };
+
+                        ApplyUserBaseFieldUpdate(newRecord, isNew: true);
+                        newItems.Add(newRecord);
                     }
                 }
 
@@ -175,7 +182,7 @@ namespace Server.Controllers
         {
             result.WeeklyRemainingBudget = GenerateBlankWeeklyBudgetSummary();
 
-            var recurringItemsAll = await _recurringItemCollection.Find(Builders<RecurringItem>.Filter.Empty).ToListAsync();
+            var recurringItemsAll = await _recurringItemCollection.Find(ApplyUserFilter(Builders<RecurringItem>.Filter.Empty)).ToListAsync();
 
             var recurringItewmDailyExpense = recurringItemsAll.FirstOrDefault(x => x.RecurringItemCode == Constants.RECURRINGITEM_CODE_DAILYEXPENSE);
             var recurringItewmMonthlyExpense = recurringItemsAll.FirstOrDefault(x => x.RecurringItemCode == Constants.RECURRINGITEM_CODE_MONTHLYEXPENSE);
@@ -184,10 +191,10 @@ namespace Server.Controllers
             DateTime periodStartDate = PeriodUtils.GetPeriodStartDate(period);
             DateTime periodEndDate = PeriodUtils.GetPeriodEndDate(period);
 
-            var transactions = await _transactionCollection.Find(Builders<Transaction>.Filter.And(
+            var transactions = await _transactionCollection.Find(ApplyUserFilter(Builders<Transaction>.Filter.And(
                 Builders<Transaction>.Filter.Gte(x => x.TransactionDateTime, periodStartDate),
                 Builders<Transaction>.Filter.Lte(x => x.TransactionDateTime, periodEndDate)
-                )).ToListAsync();
+                ))).ToListAsync();
 
             var transactionsUpToDate = transactions.Where(x => x.TransactionDateTime.Date <= DateTime.Today).ToList();
 
@@ -237,21 +244,21 @@ namespace Server.Controllers
             int currentPeriod = PeriodUtils.GetCurrentPeriod();
 
 
-            var monthlyBudget = await _monthlyBudgetCollection.Find(Builders<MonthlyBudget>.Filter.Eq(x => x.BudgetCode, budgetCode)).FirstOrDefaultAsync();
+            var monthlyBudget = await _monthlyBudgetCollection.Find(ApplyUserFilter(Builders<MonthlyBudget>.Filter.Eq(x => x.BudgetCode, budgetCode))).FirstOrDefaultAsync();
 
             if (monthlyBudget == null)
                 return result;
 
-            var monthlyBudgetByPeriod = _monthlyBudgetByPeriodCollection.Find(Builders<MonthlyBudgetByPeriod>.Filter.And(
+            var monthlyBudgetByPeriod = _monthlyBudgetByPeriodCollection.Find(ApplyUserFilter(Builders<MonthlyBudgetByPeriod>.Filter.And(
                 Builders<MonthlyBudgetByPeriod>.Filter.Eq(x => x.MonthlyBudgetId, monthlyBudget.Id),
                 Builders<MonthlyBudgetByPeriod>.Filter.Eq(x => x.Period, currentPeriod)
-                )).FirstOrDefault();
+                ))).FirstOrDefault();
 
             if (monthlyBudgetByPeriod == null)
                 return result;
 
             var monthlyBudgetByPeriodItems = await _monthlyBudgetByPeriodItemCollection.Find(
-                Builders<MonthlyBudgetByPeriodItem>.Filter.Eq(x => x.MonthlyBudgetByPeriodId, monthlyBudgetByPeriod.Id)
+                ApplyUserFilter(Builders<MonthlyBudgetByPeriodItem>.Filter.Eq(x => x.MonthlyBudgetByPeriodId, monthlyBudgetByPeriod.Id))
                 ).ToListAsync();
 
             if (!monthlyBudgetByPeriodItems.Any())
@@ -259,7 +266,7 @@ namespace Server.Controllers
 
 
             var monthlyBudgetSetupitems = await _monthlyBudgetSetupItemCollection.Find(
-                Builders<MonthlyBudgetSetupItem>.Filter.Eq(x => x.MonthlyBudgetId, monthlyBudget.Id)
+                ApplyUserFilter(Builders<MonthlyBudgetSetupItem>.Filter.Eq(x => x.MonthlyBudgetId, monthlyBudget.Id))
                 ).ToListAsync();
 
             if (!monthlyBudgetSetupitems.Any())
@@ -289,26 +296,26 @@ namespace Server.Controllers
         {
             List<MonthlyBudgetByPeriodItemDto> result = new List<MonthlyBudgetByPeriodItemDto>();
 
-            var categories = await _categoryCollection.Find(Builders<Category>.Filter.Empty).ToListAsync();
-            var recurringItems = await _recurringItemCollection.Find(Builders<RecurringItem>.Filter.Empty).ToListAsync();
+            var categories = await _categoryCollection.Find(ApplyUserFilter(Builders<Category>.Filter.Empty)).ToListAsync();
+            var recurringItems = await _recurringItemCollection.Find(ApplyUserFilter(Builders<RecurringItem>.Filter.Empty)).ToListAsync();
 
             int currentPeriod = PeriodUtils.GetCurrentPeriod();
 
-            var monthlyBudget = await _monthlyBudgetCollection.Find(Builders<MonthlyBudget>.Filter.Eq(x => x.BudgetCode, budgetCode)).FirstOrDefaultAsync();
+            var monthlyBudget = await _monthlyBudgetCollection.Find(ApplyUserFilter(Builders<MonthlyBudget>.Filter.Eq(x => x.BudgetCode, budgetCode))).FirstOrDefaultAsync();
 
             if (monthlyBudget == null)
                 return result;
 
-            var monthlyBudgetByPeriod = _monthlyBudgetByPeriodCollection.Find(Builders<MonthlyBudgetByPeriod>.Filter.And(
+            var monthlyBudgetByPeriod = _monthlyBudgetByPeriodCollection.Find(ApplyUserFilter(Builders<MonthlyBudgetByPeriod>.Filter.And(
                 Builders<MonthlyBudgetByPeriod>.Filter.Eq(x => x.MonthlyBudgetId, monthlyBudget.Id),
                 Builders<MonthlyBudgetByPeriod>.Filter.Eq(x => x.Period, currentPeriod)
-                )).FirstOrDefault();
+                ))).FirstOrDefault();
 
             if (monthlyBudgetByPeriod == null)
                 return result;
 
             var monthlyBudgetByPeriodItems = await _monthlyBudgetByPeriodItemCollection.Find(
-                Builders<MonthlyBudgetByPeriodItem>.Filter.Eq(x => x.MonthlyBudgetByPeriodId, monthlyBudgetByPeriod.Id)
+                ApplyUserFilter(Builders<MonthlyBudgetByPeriodItem>.Filter.Eq(x => x.MonthlyBudgetByPeriodId, monthlyBudgetByPeriod.Id))
                 ).ToListAsync();
 
             if (!monthlyBudgetByPeriodItems.Any())
@@ -316,7 +323,7 @@ namespace Server.Controllers
 
 
             var monthlyBudgetSetupitems = await _monthlyBudgetSetupItemCollection.Find(
-                Builders<MonthlyBudgetSetupItem>.Filter.Eq(x => x.MonthlyBudgetId, monthlyBudget.Id)
+                ApplyUserFilter(Builders<MonthlyBudgetSetupItem>.Filter.Eq(x => x.MonthlyBudgetId, monthlyBudget.Id))
                 ).ToListAsync();
 
             if (!monthlyBudgetSetupitems.Any())
@@ -374,10 +381,10 @@ namespace Server.Controllers
 
         private async Task ApplyTransactionsToBudgetCalculation(List<MonthlyBudgetByPeriodItemDto> budgetItems)
         {
-            var transactions = await _transactionCollection.Find(Builders<Transaction>.Filter.Empty).ToListAsync();
+            var transactions = await _transactionCollection.Find(ApplyUserFilter(Builders<Transaction>.Filter.Empty)).ToListAsync();
 
-            var recurringItewmDailyExpense = await _recurringItemCollection.Find(Builders<RecurringItem>.Filter.Eq(x => x.RecurringItemCode, Constants.RECURRINGITEM_CODE_DAILYEXPENSE)).FirstOrDefaultAsync();
-            var recurringItewmMonthlyExpense = await _recurringItemCollection.Find(Builders<RecurringItem>.Filter.Eq(x => x.RecurringItemCode, Constants.RECURRINGITEM_CODE_MONTHLYEXPENSE)).FirstOrDefaultAsync();
+            var recurringItewmDailyExpense = await _recurringItemCollection.Find(ApplyUserFilter(Builders<RecurringItem>.Filter.Eq(x => x.RecurringItemCode, Constants.RECURRINGITEM_CODE_DAILYEXPENSE))).FirstOrDefaultAsync();
+            var recurringItewmMonthlyExpense = await _recurringItemCollection.Find(ApplyUserFilter(Builders<RecurringItem>.Filter.Eq(x => x.RecurringItemCode, Constants.RECURRINGITEM_CODE_MONTHLYEXPENSE))).FirstOrDefaultAsync();
 
             if (transactions.Any())
             {
@@ -425,15 +432,15 @@ namespace Server.Controllers
             int currentPeriod = PeriodUtils.GetCurrentPeriod();
 
             var queryFilterBuilder = Builders<MonthlyBudget>.Filter;
-            var monthlyBudget = await _monthlyBudgetCollection.Find(queryFilterBuilder.Eq(x => x.BudgetCode, budgetCode)).FirstOrDefaultAsync();
+            var monthlyBudget = await _monthlyBudgetCollection.Find(ApplyUserFilter(queryFilterBuilder.Eq(x => x.BudgetCode, budgetCode))).FirstOrDefaultAsync();
 
             if(monthlyBudget == null)
                 return NotFound("Monthly Budget Not Found");
 
-            var monthlyBudgetByPeriod = _monthlyBudgetByPeriodCollection.Find(Builders<MonthlyBudgetByPeriod>.Filter.And(
+            var monthlyBudgetByPeriod = _monthlyBudgetByPeriodCollection.Find(ApplyUserFilter(Builders<MonthlyBudgetByPeriod>.Filter.And(
                 Builders<MonthlyBudgetByPeriod>.Filter.Eq(x => x.MonthlyBudgetId, monthlyBudget.Id),
                 Builders<MonthlyBudgetByPeriod>.Filter.Eq(x => x.Period, currentPeriod)
-            )).FirstOrDefault();
+            ))).FirstOrDefault();
 
             if(monthlyBudgetByPeriod == null)
             {

@@ -21,7 +21,18 @@ namespace Server.Controllers
             _userCollection = _mongoDBService._MongoDatabase.GetCollection<User>(MongoDocumentTypeAttributeReader.GetMongoDocumentType<User>());
         }
 
+
         [HttpGet]
+        public async Task<ActionResult<List<User>>> GetAll()
+        {
+            var users = await _userCollection.Find(Builders<User>.Filter.Empty).ToListAsync();
+
+            return Ok(users);
+        }
+
+
+        [HttpGet]
+        [Route("{id}")]
         public async Task<ActionResult<User>> GetById(string id)
         {
             User user = await _userCollection.Find(Builders<User>.Filter.Eq(x => x.Id, id)).FirstOrDefaultAsync();

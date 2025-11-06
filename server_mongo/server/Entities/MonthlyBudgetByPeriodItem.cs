@@ -5,7 +5,7 @@ using Server.Utils;
 namespace Server.Entities
 {
     [MongoDocumentType("monthlyBudgetByPeriodItems")]
-    public class MonthlyBudgetByPeriodItem
+    public class MonthlyBudgetByPeriodItem : UserEntityBase
     {
         [BsonId]
         [BsonElement("_id"), BsonRepresentation(BsonType.ObjectId)]

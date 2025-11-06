@@ -5,7 +5,7 @@ using Server.Utils;
 namespace Server.Entities
 {
     [MongoDocumentType("recurringItems")]
-    public class RecurringItem
+    public class RecurringItem : UserEntityBase
     {
         [BsonId]
         [BsonElement("_id"), BsonRepresentation(BsonType.ObjectId)]

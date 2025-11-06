@@ -6,7 +6,7 @@ using Server.Utils;
 namespace Server.Entities
 {
     [MongoDocumentType("categories")]
-    public class Category
+    public class Category : UserEntityBase
     {
         [BsonId]
         [BsonElement("_id"), BsonRepresentation(BsonType.ObjectId )]
