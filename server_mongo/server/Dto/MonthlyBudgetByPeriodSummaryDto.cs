@@ -11,6 +11,7 @@ namespace Server.Dto
         public decimal WeeklyPlannedBudget { get; set; } = 0;
         public decimal WeeklyRemainingBudget { get; set; } = 0;
         public decimal WeeklyTotalExpenses { get; set; } = 0;
+        public decimal WeeklyExpectedExpenses { get; set; } = 0;
         public int TotalDaysInWeek { get; set; } = 0;
         public bool IsCurrentWeek { get; set; } = false;
     }

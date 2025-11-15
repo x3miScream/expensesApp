@@ -18,6 +18,9 @@ namespace Server.Data
             var connectionString = _configuration.GetConnectionString("MongoDBConnection");
             var database = _configuration.GetConnectionString("MongoDBDatabase");
             var mongoUrl = MongoUrl.Create(string.Format("{0}/{1}", connectionString, database));
+            Console.WriteLine(connectionString);
+            Console.WriteLine(database);
+            Console.WriteLine(mongoUrl);
             var mongoClient = new MongoClient(mongoUrl);
 
             _mongoDatabase = mongoClient.GetDatabase(mongoUrl.DatabaseName);

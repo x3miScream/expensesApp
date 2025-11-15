@@ -33,12 +33,12 @@ builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
 
-// Seed data when the application starts
-using (var scope = app.Services.CreateScope())
-{
-    var seeder = scope.ServiceProvider.GetRequiredService<MongoDbSeeder>();
-    await seeder.SeedDataAsync();
-}
+//// Seed data when the application starts
+//using (var scope = app.Services.CreateScope())
+//{
+//    var seeder = scope.ServiceProvider.GetRequiredService<MongoDbSeeder>();
+//    await seeder.SeedDataAsync();
+//}
 
 
 // Configure the HTTP request pipeline.

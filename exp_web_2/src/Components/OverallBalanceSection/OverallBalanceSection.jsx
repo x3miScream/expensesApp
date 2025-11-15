@@ -31,9 +31,30 @@ const OverallBalanceSection = () => {
         {/* Time-Based Balances (Daily, Weekly, Monthly) */}
         <div className="metric-grid">
             {[
-                { title: 'Daily Net', reamining: monthlyBudgetSummaryData?.dailyRemainingBudget, planned: monthlyBudgetSummaryData?.totalDailyBudget, expenses: Math.abs(monthlyBudgetSummaryData?.totalDailyExpenses), icon: Calendar },
-                { title: 'Weekly Net', reamining: monthlyBudgetSummaryData?.currentWeeklyRemainingBudget?.weeklyRemainingBudget, planned: monthlyBudgetSummaryData?.currentWeeklyRemainingBudget?.weeklyPlannedBudget, expenses: Math.abs(monthlyBudgetSummaryData?.currentWeeklyRemainingBudget?.weeklyTotalExpenses), icon: Clock },
-                { title: 'Monthlply Net', reamining: monthlyBudgetSummaryData?.monthlyRemainingBudget, planned: monthlyBudgetSummaryData?.totalMonthlyBudget, expenses: Math.abs(monthlyBudgetSummaryData?.totalMonthlyExpenses), icon: BarChart2 },
+                {
+                    title: 'Daily Net',
+                    reamining: monthlyBudgetSummaryData?.dailyRemainingBudget,
+                    planned: monthlyBudgetSummaryData?.totalDailyBudget,
+                    expenses: Math.abs(monthlyBudgetSummaryData?.totalDailyExpenses),
+                    expectedExpenses: 0.00,
+                    icon: Calendar
+                },
+                { 
+                    title: 'Weekly Net',
+                    reamining: monthlyBudgetSummaryData?.currentWeeklyRemainingBudget?.weeklyRemainingBudget,
+                    planned: monthlyBudgetSummaryData?.currentWeeklyRemainingBudget?.weeklyPlannedBudget,
+                    expenses: Math.abs(monthlyBudgetSummaryData?.currentWeeklyRemainingBudget?.weeklyTotalExpenses),
+                    expectedExpenses: monthlyBudgetSummaryData?.currentWeeklyRemainingBudget?.weeklyExpectedExpenses,
+                    icon: Clock 
+                },
+                {
+                    title: 'Monthlply Net',
+                    reamining: monthlyBudgetSummaryData?.monthlyRemainingBudget,
+                    planned: monthlyBudgetSummaryData?.totalMonthlyBudget,
+                    expenses: Math.abs(monthlyBudgetSummaryData?.totalMonthlyExpenses),
+                    expectedExpenses: monthlyBudgetSummaryData?.totalRunningExpensesExpected,
+                    icon: BarChart2
+                },
             ].map((metric) => {
                 const isPositive = metric.reamining >= 0;
                 return (
@@ -41,9 +62,9 @@ const OverallBalanceSection = () => {
                         <div>
                             <p className="metric-title">{metric.title}</p>
                             <p className={`metric-value ${isPositive ? 'text-green-300' : 'text-red-300'}`}>
-                                {formatCurrency(metric.reamining)}
+                                Bal: {formatCurrency(metric.reamining)}
                             </p>
-                            <p className='text-s'>[{formatCurrency(metric.expenses)} / {formatCurrency(metric.planned)}]</p>
+                            <p className='text-s'>Exp: [{formatCurrency(metric.expenses)} / {formatCurrency(metric.expectedExpenses)} / {formatCurrency(metric.planned)}]</p>
                         </div>
                         <metric.icon className="w-5 h-5" style={{ width: '1.25rem', height: '1.25rem', color: '#93c5fd', opacity: 0.6 }} />
                     </div>

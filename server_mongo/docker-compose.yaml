@@ -1,20 +1,10 @@
 # version: '3.8'
 services:
-    exp-app-api:
-        container_name: exp-app-api
-        build:
-            context: .
-            dockerfile: Dockerfile
-        ports:
-            - 5191:5191
-            - 7119:7119
-        environment:
-            - ASPNETCORE_ENVIRONMENT=Development
-        depends_on:
-            - mongodb_01
     mongodb_01:
         image: mongodb/mongodb-community-server
         container_name: mongodb_01
+        networks:
+            - exp-app-network
         ports:
             - 27017:27017
         volumes:
@@ -24,4 +14,44 @@ services:
         environment:
             # MONGO_INITDB_ROOT_USERNAME: user
             # MONGO_INITDB_ROOT_PASSWORD: pass
-            MONGO_INITDB_DATABASE: test
+            MONGO_INITDB_DATABASE: tes t 
+        restart: unless-stopped
+    exp-app-api:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: exp-app-api
+        networks:
+            - exp-app-network
+        ports:
+            - 5191:5191
+            - 7119:7119
+            - 8080:8080
+            - 8081:8081
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ConnectionStrings__MongoDBConnection=mongodb://localhost:27017
+            - ConnectionStrings__MongoDBDatabase=ExpAppDB
+        depends_on:
+            - mongodb_01
+        restart: always
+    # mongo-express:
+    #     image: mongo-express
+    #     container_name: mongo-express
+    #     networks:
+    #         - exp-app-network
+    #     ports:
+    #       - "8081:8081" # Access via http://localhost:8081
+    #     environment:
+    #       # Credentials for Mongo Express to log in to MongoDB
+    #       ME_CONFIG_MONGODB_SERVER: mongodb
+    #       ME_CONFIG_MONGODB_ADMINUSERNAME: user
+    #       ME_CONFIG_MONGODB_ADMINPASSWORD: password
+    #     depends_on:
+    #       - mongodb_01
+    #     restart: unless-stopped
+
+networks:
+  exp-app-network:
+    driver: bridge
+    # Optional: specify driver options

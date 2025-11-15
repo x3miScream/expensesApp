@@ -210,6 +210,16 @@ namespace Server.Controllers
                 result.WeeklyRemainingBudget[i].WeeklyTotalExpenses = weeklyTransactions.Sum(x => x.Amount);
                 result.WeeklyRemainingBudget[i].WeeklyRemainingBudget += result.WeeklyRemainingBudget[i].WeeklyTotalExpenses;
                 result.WeeklyRemainingBudget[i].WeeklyRemainingBudget = Decimal.Round(result.WeeklyRemainingBudget[i].WeeklyRemainingBudget, 2);
+
+                int totalWeekPassedDays = (int)((DateTime.Today - result.WeeklyRemainingBudget[i].WeekStartDate).TotalDays + 1);
+                if (totalWeekPassedDays > (int)((result.WeeklyRemainingBudget[i].WeekEndDate - result.WeeklyRemainingBudget[i].WeekStartDate).TotalDays + 1))
+                    totalWeekPassedDays = (int)((result.WeeklyRemainingBudget[i].WeekEndDate - result.WeeklyRemainingBudget[i].WeekStartDate).TotalDays + 1);
+
+                if (totalWeekPassedDays < 0)
+                    totalWeekPassedDays = 0;
+
+            result.WeeklyRemainingBudget[i].WeeklyExpectedExpenses = (result.TotalDailyBudget * totalWeekPassedDays);
+                //(result.TotalDailyBudget * (int)((DateTime.Today - result.PeriodStartDate).TotalDays + 1));
             }
 
             var transactionsToday = transactions.Where(x => x.TransactionDateTime.Date == DateTime.Today).ToList();
