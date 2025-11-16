@@ -11,12 +11,14 @@ namespace Server.Middleware
         private readonly IServiceProvider _serviceProvider;
         private readonly IConfiguration _appSettings;
         private readonly IAuthService _authService;
+        private readonly ILogger<AuthMiddleware> _logger;
 
-        public AuthMiddleware(IServiceProvider serviceProvider, IConfiguration appSettings, IAuthService authService)
+        public AuthMiddleware(IServiceProvider serviceProvider, IConfiguration appSettings, IAuthService authService, ILogger<AuthMiddleware> logger)
         {
             _serviceProvider = serviceProvider;
             _appSettings = appSettings;
             _authService = authService;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -38,6 +40,7 @@ namespace Server.Middleware
                     if (!isAllowAnonymous)
                     {
                         await ReturnUnAuthenticated(context);
+                        Console.WriteLine($"Error3");
                         return;
                     }
                 }
@@ -54,6 +57,7 @@ namespace Server.Middleware
                     if (!string.IsNullOrEmpty(errors) || claimsPrincipal == null)
                     {
                         await ReturnUnAuthenticated(context);
+                        Console.WriteLine($"Error2");
                         return;
                     }
 
@@ -67,6 +71,7 @@ namespace Server.Middleware
                     if (!isAllowAnonymous)
                     {
                         await ReturnUnAuthenticated(context);
+                        Console.WriteLine($"Error1");
                         return;
                     }
                 }
@@ -75,7 +80,10 @@ namespace Server.Middleware
             }
             catch(Exception ex)
             {
+                _logger.LogError("Error: {error}, StackTrace: {stackTrace}", ex.Message, ex.StackTrace);
+                Console.WriteLine($"Error: {ex.Message}");
                 await ReturnUnAuthenticated(context);
+                throw;
             }
         }
 

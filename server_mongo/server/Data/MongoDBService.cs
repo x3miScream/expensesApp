@@ -1,4 +1,7 @@
-﻿using MongoDB.Driver;
+﻿using System.Text;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using Server.Configurations;
 
 namespace Server.Data
 {
@@ -6,24 +9,23 @@ namespace Server.Data
     {
         private readonly IConfiguration _configuration;
         private readonly IMongoDatabase? _mongoDatabase;
+        private readonly IOptions<ConnectionStringsConfigurations> _connectionStringsConfigurations;
 
         public IMongoDatabase? _MongoDatabase => _mongoDatabase;
 
 
 
-        public MongoDBService(IConfiguration configuration)
+        public MongoDBService(IConfiguration configuration, IOptions<ConnectionStringsConfigurations> connectionStringsConfigurations)
         {
             _configuration = configuration;
+            _connectionStringsConfigurations = connectionStringsConfigurations;
 
-            var connectionString = _configuration.GetConnectionString("MongoDBConnection");
-            var database = _configuration.GetConnectionString("MongoDBDatabase");
-            var mongoUrl = MongoUrl.Create(string.Format("{0}/{1}", connectionString, database));
-            Console.WriteLine(connectionString);
-            Console.WriteLine(database);
-            Console.WriteLine(mongoUrl);
+            Console.WriteLine(connectionStringsConfigurations?.Value?.MongoDBConnectionString);
+            var mongoUrl = MongoUrl.Create(connectionStringsConfigurations?.Value?.MongoDBConnectionString);
+
             var mongoClient = new MongoClient(mongoUrl);
 
-            _mongoDatabase = mongoClient.GetDatabase(mongoUrl.DatabaseName);
+            _mongoDatabase = mongoClient.GetDatabase(connectionStringsConfigurations?.Value?.DatabaseName);
         }
     }
 }

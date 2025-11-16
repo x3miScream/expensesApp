@@ -1,3 +1,4 @@
+using Server.Configurations;
 using Server.Data;
 using Server.Interfaces;
 using Server.Middleware;
@@ -19,6 +20,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.Configure<ConnectionStringsConfigurations>(builder.Configuration.GetSection("ConnectionStrings"));
 
 builder.Services.AddSingleton<MongoDBService>();
 builder.Services.AddSingleton<MongoDbSeeder>();
