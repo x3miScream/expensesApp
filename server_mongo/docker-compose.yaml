@@ -1,21 +1,21 @@
 version: '3.8'
 services:
-    mongodb_01:
-        image: mongodb/mongodb-community-server
-        container_name: mongodb_01
-        networks:
-            - exp-app-network
-        ports:
-            - 27017:27017
-        volumes:
-            - type: bind 
-              source: D:/DataBase/MongoDB/DockerMount/data
-              target: /data/db
-        environment:
-            # MONGO_INITDB_ROOT_USERNAME: user
-            # MONGO_INITDB_ROOT_PASSWORD: pass
-            MONGO_INITDB_DATABASE: test
-        restart: unless-stopped
+    # mongodb_01:
+    #     image: mongodb/mongodb-community-server
+    #     container_name: mongodb_01
+    #     networks:
+    #         - exp-app-network
+    #     ports:
+    #         - 27017:27017
+    #     volumes:
+    #         - type: bind 
+    #           source: D:/DataBase/MongoDB/DockerMount/data
+    #           target: /data/db
+    #     environment:
+    #         # MONGO_INITDB_ROOT_USERNAME: user
+    #         # MONGO_INITDB_ROOT_PASSWORD: pass
+    #         MONGO_INITDB_DATABASE: test
+    #     restart: unless-stopped
     exp-app-api:
         # image: ${DOCKER_REGISTRY-}exp-app-api
         container_name: exp-app-api
@@ -39,8 +39,8 @@ services:
 
             # - Kestrel__Endpoints__Http__Url=http://localhost:8080
             # - Kestrel__Endpoints__Https__Url=https://localhost:8081
-        depends_on:
-            - mongodb_01
+        # depends_on:
+        #     - mongodb_01
         restart: always
     # mongo-express:
     #     image: mongo-express
