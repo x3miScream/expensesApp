@@ -17,19 +17,19 @@ services:
     #         MONGO_INITDB_DATABASE: test
     #     restart: unless-stopped
     exp-app-api:
-        # image: ${DOCKER_REGISTRY-}exp-app-api:1.0.0
-        image: x3miscream/expapp-repo:1.0.0
-        container_name: x3miscream/expapp-repo:1.0.0
-        # build:
-        #     context: .
-        #     dockerfile: Dockerfile
+        image: ${DOCKER_REGISTRY-}exp-app-api:1.0.0
+        # image: x3miscream/expapp-repo:1.0.0
+        # container_name: x3miscream/expapp-repo:1.0.0
+        build:
+            context: .
+            dockerfile: Dockerfile
         networks:
             - exp-app-network
         ports:
             - "8080:8080"
             - "8081:8081"
         environment:
-            - ASPNETCORE_ENVIRONMENT=Production
+            - ASPNETCORE_ENVIRONMENT=Prod
             # - ConnectionStrings__MongoDBConnection=mongodb://
             # - ConnectionStrings__MongoDBConnectionHost=localhost
             # - ConnectionStrings__MongoDBConnectionPort=27017

@@ -15,14 +15,14 @@ namespace Server.Data
 
 
 
-        public MongoDBService(IConfiguration configuration, IOptions<ConnectionStringsConfigurations> connectionStringsConfigurations)
+        public MongoDBService(IConfiguration configuration, IOptions<ConnectionStringsConfigurations> connectionStringsConfigurations, ILogger<MongoDBService> logger)
         {
             _configuration = configuration;
             _connectionStringsConfigurations = connectionStringsConfigurations;
 
-            Console.WriteLine(connectionStringsConfigurations?.Value?.MongoDBConnectionString);
+            logger.LogInformation("MongoDBConnectionString: {MongoDBConnectionString}", connectionStringsConfigurations?.Value?.MongoDBConnectionString);
             var mongoUrl = MongoUrl.Create(connectionStringsConfigurations?.Value?.MongoDBConnectionString);
-
+            logger.LogInformation("mongoUrl: {mongoUrl}", mongoUrl);
             var mongoClient = new MongoClient(mongoUrl);
 
             _mongoDatabase = mongoClient.GetDatabase(connectionStringsConfigurations?.Value?.DatabaseName);
