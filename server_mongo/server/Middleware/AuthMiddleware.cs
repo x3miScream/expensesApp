@@ -81,8 +81,8 @@ namespace Server.Middleware
             catch(Exception ex)
             {
                 _logger.LogError("Error: {error}, StackTrace: {stackTrace}", ex.Message, ex.StackTrace);
-                Console.WriteLine($"Error: {ex.Message}");
-                await ReturnUnAuthenticated(context);
+                //Console.WriteLine($"Error: {ex.Message}");
+                //await ReturnUnAuthenticated(context);
                 throw;
             }
         }
