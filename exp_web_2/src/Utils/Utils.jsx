@@ -22,5 +22,6 @@ const getRangeOfActiveMonths = () => {
 };
 
 export {
-    formatCurrency
+    formatCurrency,
+    getRangeOfActiveMonths
 }
