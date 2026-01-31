@@ -19,7 +19,7 @@ const MOCK_BUDGET_DATA = [
 //const BUDGET_MONTHS = ['202501', '202502', '202503', '202504', '202505', '202506', '202507', '202508', '202509', '202510', '202511', '202512'];
 // const BUDGET_MONTHS = ['202505', '202506', '202507', '202508', '202509', '202510', '202511', '202512'];
 // const BUDGET_MONTHS = ['202510', '202511', '202512'];
-const BUDGET_MONTHS = ['202605', '202604', '202603', '202602'];
+const BUDGET_MONTHS = ['202602', '202603', '202604', '202605'];
 // const BUDGET_MONTHS = ['202511'];
 const MOCK_TRANSACTIONS = [
   { id: 't1', name: 'Rent Payment', amount: -2100.00, category: 'Housing', date: '2025-10-01', timestamp: new Date('2025-10-01T10:00:00') },
