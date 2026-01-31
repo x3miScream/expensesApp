@@ -8,7 +8,7 @@ import useTransactionCreateUdpateDelete from '../../Hooks/useTransactionCreateUd
 import useCategoryCRUD from '../../Hooks/useCategoryCRUD.jsx';
 import useGetRecurringTransactions from '../../Hooks/useGetRecurringTransactions.jsx';
 
-import {formatCurrency} from '../../Utils/Utils.jsx';
+import {formatCurrency, getRangeOfActiveMonths} from '../../Utils/Utils.jsx';
 
 import { 
     Plus, BarChart2, DollarSign, Calendar, Tag, Clock, Trash2, Edit, X, AlertTriangle, 
@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 // --- MOCK DATA & Constants ---
-import { CATEGORIES, MOCK_BUDGET_DATA, MOCK_TRANSACTIONS, BUDGET_MONTHS } from '../../data/dummyData.jsx';
+import { CATEGORIES, MOCK_BUDGET_DATA, MOCK_TRANSACTIONS } from '../../data/dummyData.jsx';
 
   
 // --- Main Application Component ---
@@ -456,7 +456,7 @@ const Home = () => {
           <SummaryTiles categories={categories} expenses={expenses} />
           
           {/* 3. MONTHLY FIXED BUDGET GRID */}
-          <MonthlyBudgetGrid months={BUDGET_MONTHS} />
+          <MonthlyBudgetGrid months={getRangeOfActiveMonths()} />
 
           {/* 4. TRANSACTION HISTORY (Full Width) */}
           <div style={{ marginTop: '2rem' }}>
