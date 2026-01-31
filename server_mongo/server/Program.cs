@@ -10,11 +10,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddCors(options =>
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-    policy => {
-        policy.WithOrigins(builder.Configuration["AllowedHosts"].ToString()).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
-    }));
+//builder.Services.AddCors(options =>
+//    options.AddPolicy(name: MyAllowSpecificOrigins,
+//    policy => {
+//        policy.WithOrigins(builder.Configuration["AllowedHosts"]?.ToString() ?? string.Empty).AllowAnyHeader().AllowAnyMethod();
+//        //policy.WithOrigins("https://localhost").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+//        //policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+//    }));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -45,16 +47,16 @@ var app = builder.Build();
 
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 
-app.UseCors(MyAllowSpecificOrigins);
+app.UseCors();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

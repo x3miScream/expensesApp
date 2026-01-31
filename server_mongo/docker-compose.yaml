@@ -17,8 +17,7 @@ services:
     #         MONGO_INITDB_DATABASE: test
     #     restart: unless-stopped
     exp-app-api:
-        image: ${DOCKER_REGISTRY-}exp-app-api:1.0.0
-        # image: x3miscream/expapp-repo:1.0.0
+        image: x3miscream/expapp-repo:1.0.0
         # container_name: x3miscream/expapp-repo:1.0.0
         build:
             context: .
@@ -37,6 +36,7 @@ services:
 
             - ConnectionStrings__MongoDBConnectionString=mongodb+srv://expappsa:expappsapwd@cluster0.pv2uajk.mongodb.net/?appName=Cluster0
             - ConnectionStrings__DatabaseName=ExpAppDB
+            - AllowedHosts=https://expensesapp-mqg3.onrender.com/
 
             # - Kestrel__Endpoints__Http__Url=http://localhost:8080
             # - Kestrel__Endpoints__Https__Url=https://localhost:8081
