@@ -7,25 +7,41 @@ const formatCurrency = (amount) => {
 };
 
 const getRangeOfActiveMonths = () => {
-  let currentDate = new Date();
-  let currentMonth = currentDate.getMonth();
+  let currentYear = new Date().getFullYear();
+  let lastMonthYear = new Date().getFullYear();
+  let currentMonth = new Date().getMonth();
+  let lastMonthMonth = new Date().getMonth();
+  let currentDate = new Date().getDate();
 
-  if(currentDate.getDate() > 27)
+  lastMonthMonth -= 1;
+
+  if(currentDate > 27)
   {
-      currentDate.setMonth(currentMonth + 1);
-      currentMonth = currentDate.getMonth();
+      currentDate = 1;
+      currentMonth += 1;
+      lastMonthMonth += 1;
   }
 
-  let lastMonthDate = currentDate;
-  lastMonthDate.setMonth(currentMonth - 1);
-  let currentYear = currentDate.getFullYear();
+  if(currentMonth > 11)
+  {
+      currentMonth = 0;
+      currentYear += 1;
+  }
 
-  let lastMonthYear = lastMonthDate.getFullYear();
-  let lastMonthMonth = (lastMonthDate.getMonth());
+  if(lastMonthMonth > 11)
+  {
+      lastMonthMonth = 0;
+      lastMonthYear += 1;
+  }
+  else if(lastMonthMonth < 0)
+  {
+      lastMonthMonth = 0;
+      lastMonthYear -= 1;
+  }
 
   let monthsRange = [];
-  monthsRange.push(((currentYear * 100) + (currentMonth)).toString());
-  monthsRange.push(((lastMonthYear * 100) + (lastMonthMonth)).toString());
+  monthsRange.push(((currentYear * 100) + (currentMonth + 1)).toString());
+  monthsRange.push(((lastMonthYear * 100) + (lastMonthMonth + 1)).toString());
 
   return monthsRange;
 };
