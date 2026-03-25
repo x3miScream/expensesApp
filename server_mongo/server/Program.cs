@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HostFiltering;
 using Server.Configurations;
 using Server.Data;
 using Server.Interfaces;
@@ -9,14 +10,20 @@ const string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.Configure<HostFilteringOptions>(options => {
+    options.AllowedHosts.Add("localhost");
+    options.AllowedHosts.Add("127.0.0.1");
+});
 
-//builder.Services.AddCors(options =>
-//    options.AddPolicy(name: MyAllowSpecificOrigins,
-//    policy => {
-//        policy.WithOrigins(builder.Configuration["AllowedHosts"]?.ToString() ?? string.Empty).AllowAnyHeader().AllowAnyMethod();
-//        //policy.WithOrigins("https://localhost").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
-//        //policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-//    }));
+builder.Services.AddCors(options =>
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+    policy =>
+    {
+        policy.WithOrigins(builder.Configuration["AllowedHosts"]?.ToString() ?? string.Empty)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    }));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -37,26 +44,17 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
+app.UseRouting();
 
-//// Seed data when the application starts
-//using (var scope = app.Services.CreateScope())
-//{
-//    var seeder = scope.ServiceProvider.GetRequiredService<MongoDbSeeder>();
-//    await seeder.SeedDataAsync();
-//}
-
-
-// Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection();
 
-app.UseCors();
-
-//app.UseHttpsRedirection();
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthorization();
 

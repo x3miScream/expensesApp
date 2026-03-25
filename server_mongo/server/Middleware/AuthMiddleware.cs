@@ -37,11 +37,18 @@ namespace Server.Middleware
 
                 if (context?.Request?.Cookies?[_appSettings["Authentication:AuthJWTTokenName"]?.ToString()] == null)
                 {
-                    if (!isAllowAnonymous)
+                    if (context?.Request?.Headers?.ContainsKey("Authorization") ?? false)
                     {
-                        await ReturnUnAuthenticated(context);
-                        Console.WriteLine($"Error3");
-                        return;
+                        jwtToken = context?.Request?.Headers.Authorization.ToString().Substring(7);
+                    }
+                    else
+                    {
+                        if (!isAllowAnonymous)
+                        {
+                            await ReturnUnAuthenticated(context);
+                            Console.WriteLine($"Error3");
+                            return;
+                        }
                     }
                 }
                 else

@@ -1,4 +1,5 @@
 ﻿using System.Transactions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using Server.Data;
@@ -58,7 +59,7 @@ namespace Server.Controllers
 
             User duplicatedUser = await _userCollection.Find(Builders<User>.Filter.Eq(x => x.Email, email)).FirstOrDefaultAsync();
 
-            if(duplicatedUser != null)
+            if (duplicatedUser != null)
                 return BadRequest("Email is already registered");
 
 
@@ -75,6 +76,37 @@ namespace Server.Controllers
             await _userCollection.InsertOneAsync(newUser);
 
             return CreatedAtAction(nameof(GetById), new { id = newUser.Id }, newUser);
+        }
+
+
+        [HttpPost]
+        [Route("update-password")]
+        [AllowAnonymous]
+        public async Task<ActionResult> UpdatePassword(string email, string password, string confirmationPassword, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(email))
+                return BadRequest("Email cannot be empty");
+
+            if (string.IsNullOrEmpty(password))
+                return BadRequest("Password cannot be empty");
+
+            if (string.IsNullOrEmpty(confirmationPassword))
+                return BadRequest("Confirmation Password cannot be empty");
+
+            if(password != confirmationPassword)
+                return BadRequest("Password and Confirmation Password must be same");
+
+            User foundUser = await _userCollection.Find(Builders<User>.Filter.Eq(x => x.Email, email)).FirstOrDefaultAsync(cancellationToken);
+
+            if (foundUser == null)
+                return NotFound("User not found");
+
+            foundUser.PasswordSaltKey = EncryptionService.GenerateNewSaltKey();
+            foundUser.PasswordHash = EncryptionService.GenerateHash(password, foundUser.PasswordSaltKey);
+
+            await _userCollection.FindOneAndReplaceAsync(Builders<User>.Filter.Eq(x => x.Email, email), foundUser, null, cancellationToken);
+
+            return Ok();
         }
     }
 }
