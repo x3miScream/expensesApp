@@ -5,6 +5,8 @@ server/server/obj
 server_mongo/.vs
 server_mongo/server/bin
 server_mongo/server/obj
+server_mongo/ExpenseApp.Business/bin
+server_mongo/ExpenseApp.Business/obj
 
 
 
