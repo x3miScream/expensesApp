@@ -1,7 +1,4 @@
 ﻿namespace Server.Dto.Auth
 {
-    public class AuthDto
-    {
-        public string UserName { get; set; }
-    }
+    public record AuthDto(string UserName, string Token);
 }

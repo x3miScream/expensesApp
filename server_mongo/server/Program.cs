@@ -9,21 +9,34 @@ const string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.Configure<HostFilteringOptions>(options => {
-    options.AllowedHosts.Add("localhost");
-    options.AllowedHosts.Add("127.0.0.1");
-});
+var allowedHostsStr = builder.Configuration["AllowedHosts"]?.ToString() ?? string.Empty;
+var allowedHosts = allowedHostsStr.Split(",");
 
-builder.Services.AddCors(options =>
+if(allowedHosts.Any())
+{
+    // Add services to the container.
+    builder.Services.Configure<HostFilteringOptions>(options => {
+        foreach (var allowedHost in allowedHosts)
+        {
+            options.AllowedHosts.Add(allowedHost);
+        }
+
+        options.AllowEmptyHosts = true;
+    });
+
+    builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
     policy =>
     {
-        policy.WithOrigins(builder.Configuration["AllowedHosts"]?.ToString() ?? string.Empty)
+        foreach (var allowedHost in allowedHosts)
+        {
+            policy.WithOrigins(allowedHost)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
+        }
     }));
+}
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

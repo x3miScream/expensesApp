@@ -30,15 +30,10 @@ namespace Server.Controllers
             _appsettings = appsettings;
         }
 
-
-
-
-
-
         [AllowAnonymous]
         [HttpPost]
         [Route("login")]
-        public async Task<ActionResult<AuthDto>> Login([FromBody] LoginDto loginDto)
+        public async Task<ActionResult<AuthDto>> Login([FromBody] LoginDto loginDto, CancellationToken cancellationToken)
         {
             List<string> errors = new List<string>();
 
@@ -53,7 +48,7 @@ namespace Server.Controllers
             if (errors.Any())
                 return BadRequest(errors);
 
-            User foundUser = await _userCollection.Find(Builders<User>.Filter.Eq(x => x.Email, loginDto.UserEmail)).FirstOrDefaultAsync();
+            User foundUser = await _userCollection.Find(Builders<User>.Filter.Eq(x => x.Email, loginDto.UserEmail)).FirstOrDefaultAsync(cancellationToken);
 
             if (foundUser == null)
                 errors.Add("Wrong login or password");
@@ -77,18 +72,9 @@ namespace Server.Controllers
 
             Response.Cookies.Append(_appsettings["Authentication:AuthJWTTokenName"]?.ToString(), jwtToken, cookieOptions);
 
-            AuthDto dto = new AuthDto()
-            {
-                UserName = foundUser.UserName
-            };
-
-            return Ok(dto);
+            return Ok(new AuthDto(foundUser.UserName, jwtToken));
 
         }
-
-
-
-
 
         [AllowAnonymous]
         [HttpGet]
@@ -102,12 +88,7 @@ namespace Server.Controllers
                 if (foundUser == null)
                     return BadRequest("User Not Found");
 
-                AuthDto dto = new AuthDto()
-                {
-                    UserName = foundUser.UserName
-                };
-
-                return Ok(dto);
+                return Ok(new AuthDto(foundUser.UserName, string.Empty));
             }
             return NotFound();
         }
