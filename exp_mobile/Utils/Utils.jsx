@@ -46,7 +46,16 @@ const getRangeOfActiveMonths = () => {
   return monthsRange;
 };
 
+const formatDate = (d) => {
+return d.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
+});
+};
+
 export {
     formatCurrency,
-    getRangeOfActiveMonths
+    getRangeOfActiveMonths,
+    formatDate
 }

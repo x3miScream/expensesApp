@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { dummy_transactions } from './dummy_data/data';
-import {formatCurrency, getRangeOfActiveMonths} from './Utils/Utils.jsx';
+import {formatCurrency, getRangeOfActiveMonths, formatDate} from './Utils/Utils.jsx';
 import useAuth from './Hooks/useAuth.jsx';
 import OverallBalanceSection from './Components/OverallBalanceSection/OverallBalanceSection.jsx';
+import AddUpdateTransaction from './Components/AddUpdateTransaction/AddUpdateTransaction.jsx';
+import useTransactionCreateUdpateDelete from './Hooks/useTransactionCreateUdpateDelete.jsx';
 
 import {
   StyleSheet,
@@ -23,12 +25,11 @@ import {Styles, THEME} from './Styles/Styles.jsx';
 // In your local Expo project, simply change this to:
 // import { ... } from 'lucide-react-native';
 import { 
-  Wallet, 
-  Receipt, 
-  TrendingUp, 
-  Plus, 
-  ArrowUpRight, 
-  ArrowDownLeft, 
+  Calendar,
+  ChevronDown,
+  Receipt,
+  TrendingUp,
+  Plus,
   X,
   CreditCard,
   PieChart
@@ -47,7 +48,7 @@ const Header = ({ onAddPress }) => (
       <Text style={Styles.headerTitle}>My Finances</Text>
     </View>
     <TouchableOpacity 
-      activeOpacity={0.7} 
+      activeOpacity={0.1} 
       style={Styles.addButton}
       onPress={onAddPress}
     >
@@ -56,40 +57,58 @@ const Header = ({ onAddPress }) => (
   </View>
 );
 
-const TransactionItem = ({ item, onDelete }) => (
-  <View style={Styles.transactionCard}>
-    <View style={Styles.transactionIconContainer}>
-      <Receipt size={20} color={THEME.colors.textSecondary} />
+const TransactionItem = ({ item, onEditTransactionCallback }) => {
+  return (<TouchableOpacity onPress={() => onEditTransactionCallback(item)}>
+    <View style={Styles.transactionCard}>
+      <View style={Styles.transactionIconContainer}>
+        <Receipt size={20} color={THEME.colors.textSecondary} />
+      </View>
+      <View style={Styles.transactionDetails}>
+        <Text style={Styles.transactionTitle}>{item.name}</Text>
+        <Text style={Styles.transactionMeta}>{item.category} • {item.date}</Text>
+      </View>
+      <View style={{ alignItems: 'flex-end' }}>
+        <Text style={[
+          Styles.transactionAmount, 
+          { color: item.amount < 0 ? THEME.colors.textPrimary : THEME.colors.success }
+        ]}>
+          {item.amount < 0 ? `-RM${Math.abs(item.amount).toFixed(2)}` : `+RM${item.amount.toFixed(2)}`}
+        </Text>
+      </View>
     </View>
-    <View style={Styles.transactionDetails}>
-      <Text style={Styles.transactionTitle}>{item.name}</Text>
-      <Text style={Styles.transactionMeta}>{item.category} • {item.date}</Text>
-    </View>
-    <View style={{ alignItems: 'flex-end' }}>
-      <Text style={[
-        Styles.transactionAmount, 
-        { color: item.amount < 0 ? THEME.colors.textPrimary : THEME.colors.success }
-      ]}>
-        {item.amount < 0 ? `-RM${Math.abs(item.amount).toFixed(2)}` : `+RM${item.amount.toFixed(2)}`}
-      </Text>
-    </View>
-  </View>
-);
+  </TouchableOpacity>
+)
+};
 
 // --- MAIN APPLICATION COMPONENT ---
 
 export default function App() {
+
+  const {saveLoadingState, getTransactions} = useTransactionCreateUdpateDelete();
 
   useEffect(() => {
     login({
       userEmail: "ataybekenov@gmail.com",
       password: "!Q2w3e4r"
     });
+
+    getTransactions(setTransactions);
   }, []);
 
+  const [editTransactionDetails, setEditTransactionDetails] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [newTransaction, setNewTransaction] = useState({ title: '', amount: '', category: 'General', type: 'expense' });
-  const [transactions, setTransactions] = useState(dummy_transactions);
+  const [newTransaction, setNewTransaction] = useState({ title: '', amount: '', category: 'General', type: 'expense', transactionDate: new Date() });
+  const [transactions, setTransactions] = useState([]);
+
+  const editTransaction = (transaction) => {
+    setEditTransactionDetails(transaction);
+    setModalVisible(true);
+  };
+
+  const addTransaction = () => {
+    setEditTransactionDetails(null);
+    setModalVisible(true);
+  };
 
   const handleAddTransaction = () => {
     if (!newTransaction.title || !newTransaction.amount) return;
@@ -124,7 +143,7 @@ export default function App() {
         contentContainerStyle={Styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Header onAddPress={() => setModalVisible(true)} />
+        <Header onAddPress={() => addTransaction()} />
         
         <OverallBalanceSection 
           total={totals.balance} 
@@ -164,7 +183,7 @@ export default function App() {
         </View>
 
         {transactions.map((item) => (
-          <TransactionItem key={item.id} item={item} />
+          <TransactionItem onEditTransactionCallback={editTransaction} key={item.id} item={item} />
         ))}
 
         {/* Padding for bottom */}
@@ -178,58 +197,7 @@ export default function App() {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={Styles.modalOverlay}>
-          <View style={Styles.modalContent}>
-            <View style={Styles.modalHeader}>
-              <Text style={Styles.modalTitle}>New Transaction</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <X size={24} color={THEME.colors.textPrimary} />
-              </TouchableOpacity>
-            </View>
-
-            <View style={Styles.typeSelector}>
-              <TouchableOpacity 
-                style={[Styles.typeBtn, newTransaction.type === 'expense' && Styles.typeBtnActive]}
-                onPress={() => setNewTransaction({...newTransaction, type: 'expense'})}
-              >
-                <Text style={[Styles.typeBtnText, newTransaction.type === 'expense' && Styles.typeBtnTextActive]}>Expense</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={[Styles.typeBtn, newTransaction.type === 'income' && Styles.typeBtnActive]}
-                onPress={() => setNewTransaction({...newTransaction, type: 'income'})}
-              >
-                <Text style={[Styles.typeBtnText, newTransaction.type === 'income' && Styles.typeBtnTextActive]}>Income</Text>
-              </TouchableOpacity>
-            </View>
-            
-            <View style={Styles.inputGroup}>
-              <Text style={Styles.inputLabel}>Transaction Name</Text>
-              <TextInput 
-                style={Styles.input} 
-                placeholder="e.g. Weekly Groceries"
-                placeholderTextColor="#94a3b8"
-                value={newTransaction.title}
-                onChangeText={(text) => setNewTransaction({...newTransaction, title: text})}
-              />
-            </View>
-
-            <View style={Styles.inputGroup}>
-              <Text style={Styles.inputLabel}>Amount ($)</Text>
-              <TextInput 
-                style={Styles.input} 
-                placeholder="0.00"
-                keyboardType="decimal-pad"
-                placeholderTextColor="#94a3b8"
-                value={newTransaction.amount}
-                onChangeText={(text) => setNewTransaction({...newTransaction, amount: text})}
-              />
-            </View>
-
-            <TouchableOpacity style={Styles.saveButton} onPress={handleAddTransaction}>
-              <Text style={Styles.saveButtonText}>Add Transaction</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <AddUpdateTransaction setIsModalVisibleCallback={setModalVisible} editTransaction={editTransactionDetails}></AddUpdateTransaction>
       </Modal>
     </SafeAreaView>
   );

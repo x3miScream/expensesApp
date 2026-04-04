@@ -1,15 +1,18 @@
-import React, {useState} from 'react';
+import {useState} from 'react';
+import {AuthService} from '../Utils/AuthUtils.jsx';
 
 const useTransactionCreateUdpateDelete = () => {
     const [saveLoadingState, setSaveLoadingState] = useState(false);
 
     const getTransactions = async (setData) => {
+        const authToken = await AuthService.getTokenAsync();
         const url = `${process.env.EXPO_PUBLIC_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/transactions`;
         const verb = 'GET';
 
         const fetchObj = {
             method: verb,
-            headers: {'Content-Type': 'application/json'},
+            headers: {'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`},
             credentials: 'include',
             mode: 'cors'
         };
@@ -29,7 +32,7 @@ const useTransactionCreateUdpateDelete = () => {
 
     const saveTransaction = async (transaction, actino, postSaveCallback) => {
         setSaveLoadingState(true);
-
+        const authToken = await AuthService.getTokenAsync();
         const url = `${process.env.EXPO_PUBLIC_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/transactions`;
         let verb = 'POST';
 
@@ -38,7 +41,8 @@ const useTransactionCreateUdpateDelete = () => {
 
         const fetchObj = {
             method: verb,
-            headers: {'Content-Type': 'application/json'},
+            headers: {'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`},
             credentials: 'include',
             mode: 'cors',
             body: JSON.stringify(transaction)
@@ -64,13 +68,14 @@ const useTransactionCreateUdpateDelete = () => {
 
     const deleteTransaction = async (id) => {
         setSaveLoadingState(true);
-
+        const authToken = await AuthService.getTokenAsync();
         const url = `${process.env.EXPO_PUBLIC_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/transactions?id=${id}`;
         const verb = 'DELETE';
 
         const fetchObj = {
             method: verb,
-            headers: {'Content-Type': 'application/json'},
+            headers: {'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`},
             credentials: 'include',
             mode: 'cors'
         }
