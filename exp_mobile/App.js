@@ -82,7 +82,7 @@ const TransactionItem = ({ item, onEditTransactionCallback }) => {
 
 export default function App() {
 
-  const {saveLoadingState, getTransactions} = useTransactionCreateUdpateDelete();
+  const {saveLoadingState, getPagedTransactions} = useTransactionCreateUdpateDelete();
 
   useEffect(() => {
     login({
@@ -90,10 +90,10 @@ export default function App() {
       password: "!Q2w3e4r"
     });
 
-    getTransactions(setTransactions);
+    // getPagedTransactions(displayPeriod, transactionPagingData.itemsPerPage, transactionPagingData.pageNumber, setTransactions);
 
     const transactionUdpateEventSubscription = DeviceEventEmitter.addListener(APP_EVENT_CONSTANTS.TRANSACTION_ADD_EVENT, (data) => {
-      getTransactions(setTransactions);
+      getPagedTransactions(displayPeriod, transactionPagingData.itemsPerPage, transactionPagingData.pageNumber, setTransactions);
     });
 
     // 2. IMPORTANT: Clean up the listener on unmount to prevent memory leaks
@@ -102,13 +102,26 @@ export default function App() {
     };
   }, []);
 
+  ////Fix change of period to refresh transaction grid
+  useEffect(() => {
+    console.log(`updating period to: ${displayPeriod}`)
+    getPagedTransactions(displayPeriod, transactionPagingData.itemsPerPage, transactionPagingData.pageNumber, setTransactions);
+  }, [displayPeriod]);
+
   const [displayPeriod, setDisplayPeriod] = useState(getRangeOfActiveMonths()[0]);
   const [showPeriodDropdown, setShowPeriodDropdown] = useState(false);
   const [displayPeriodList, setDisplayPeriodList] = useState(getRangeOfActiveMonths());
   const [editTransactionDetails, setEditTransactionDetails] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [newTransaction, setNewTransaction] = useState({ title: '', amount: '', category: 'General', type: 'expense', transactionDate: new Date() });
-  const [transactions, setTransactions] = useState([]);
+  const [transactions, setTransactions] = useState({
+    totalRecords: 0,
+    data: []
+  });
+  const [transactionPagingData, setTransactionPagingData] = useState({
+    itemsPerPage: 10,
+    pageNumber: 0
+  });
 
   const editTransaction = (transaction) => {
     setEditTransactionDetails(transaction);
@@ -121,7 +134,7 @@ export default function App() {
   };
 
   // Calculate dynamic totals
-  const totals = transactions.reduce((acc, curr) => {
+  const totals = transactions.data.reduce((acc, curr) => {
     if (curr.amount > 0) acc.income += curr.amount;
     else acc.expense += Math.abs(curr.amount);
     acc.balance = acc.income - acc.expense;
@@ -129,7 +142,7 @@ export default function App() {
   }, { income: 0, expense: 0, balance: 0 });
 
   const refreshTransactionGridDataAsync = async () => {
-    await getTransactions(setTransactions);
+    await getPagedTransactions(displayPeriod, transactionPagingData.itemsPerPage, transactionPagingData.pageNumber, setTransactions);
   };
 
   const selectDisplayPeriod = (displayPeriod) => {
@@ -203,15 +216,13 @@ export default function App() {
 
         <View style={Styles.sectionHeader}>
           <Text style={Styles.sectionTitle}>Recent Activity</Text>
-          {/* <TouchableOpacity>
-            <Text style={Styles.seeAllText}>See All</Text>
-          </TouchableOpacity> */}
+          <Text style={Styles.sectionTitle}>Page: {transactionPagingData.pageNumber + 1} out of: {Math.ceil(transactions.totalRecords / transactionPagingData.itemsPerPage)}</Text>
           <TouchableOpacity onPress={async () => await refreshTransactionGridDataAsync()}>
             <RefreshCcw style={Styles.refreshButtonDark} />
           </TouchableOpacity>
         </View>
 
-        {transactions.map((item) => (
+        {transactions.data.map((item) => (
           <TransactionItem onEditTransactionCallback={editTransaction} key={item.id} item={item} />
         ))}
 

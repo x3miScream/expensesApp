@@ -23,6 +23,24 @@ const useTransactionCreateUdpateDelete = () => {
         setData(data);
     };
 
+    const getPagedTransactions = async (displayPeriod, itemsPerPage, pageNumber, setData) => { 
+        const authToken = await AuthService.getTokenAsync();
+        const url = `${process.env.EXPO_PUBLIC_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/transactions/get-paged/${displayPeriod}/${itemsPerPage}/${pageNumber}`;
+        const verb = 'GET';
+
+        const fetchObj = {
+            method: verb,
+            headers: {'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`},
+            credentials: 'include',
+            mode: 'cors'
+        };
+
+        const res = await fetch(url, fetchObj);
+        const data = await res.json();
+        setData(data);
+    };
+
     const createTransaction = async(transaction, postSaveCallback) => {
         await saveTransaction(transaction, 'create', postSaveCallback);
     };
@@ -94,6 +112,7 @@ const useTransactionCreateUdpateDelete = () => {
         createTransaction,
         updateTransaction,
         getTransactions,
+        getPagedTransactions,
         deleteTransaction
     }
 }
