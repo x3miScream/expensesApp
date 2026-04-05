@@ -1,17 +1,21 @@
+import {APP_EVENT_CONSTANTS} from '../../Constants/ApplicationEventConstants.jsx';
+
 import {
   View,
-  Text
+  Text,
+  TouchableOpacity,
+  DeviceEventEmitter
 } from 'react-native';
 
 import {Styles, THEME} from '../../Styles/Styles.jsx';
 
 import {
   ArrowUpRight, 
-  ArrowDownLeft
+  ArrowDownLeft,
+  RefreshCcw
 } from 'lucide-react-native';
 
-import React, {useState, useEffect} from 'react';
-import {formatCurrency} from '../../Utils/Utils.jsx';
+import {useState, useEffect} from 'react';
 
 import useGetMonthlyBudget from '../../Hooks/useGetMonthlyBudget.jsx';
 
@@ -37,14 +41,32 @@ const OverallBalanceSection = ({ total, income, expense }) => {
         totalMonthlyBudget: 0.00
     });
     const {getMonthlyBudgetDetails, getMonthlyBudgetSummary} = useGetMonthlyBudget();
-
+    
     useEffect(() => {
         getMonthlyBudgetSummary(setMonthlyBudgetSummaryData);
+
+        const transactionUdpateEventSubscription = DeviceEventEmitter.addListener(APP_EVENT_CONSTANTS.TRANSACTION_ADD_EVENT, (data) => {
+            getMonthlyBudgetSummary(setMonthlyBudgetSummaryData);
+        });
+
+        // 2. IMPORTANT: Clean up the listener on unmount to prevent memory leaks
+        return () => {
+            transactionUdpateEventSubscription.remove();
+        };
     }, []);
+    
+    const refreshOverallBalanceData = async () => {
+        getMonthlyBudgetSummary(setMonthlyBudgetSummaryData);
+    };
 
     return (
     <View style={Styles.mainCard}>
-        <Text style={Styles.balanceLabel}>Total Balance</Text>
+        <View style={Styles.headerContainer}>
+            <Text style={Styles.balanceLabel}>Total Balance</Text>
+            <TouchableOpacity onPress={() => refreshOverallBalanceData()}>
+                <RefreshCcw style={Styles.refreshButtonWhite} />
+            </TouchableOpacity>
+        </View>
         <Text style={Styles.balanceAmount}>RM{Math.abs(monthlyBudgetSummaryData?.totalRunningExpenses).toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
         <Text style={Styles.balanceAmountSmall}>RM{monthlyBudgetSummaryData?.totalRunningExpensesExpected.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
         

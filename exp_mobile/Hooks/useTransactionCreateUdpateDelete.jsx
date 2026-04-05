@@ -30,13 +30,13 @@ const useTransactionCreateUdpateDelete = () => {
         await saveTransaction(transaction, 'update', postSaveCallback);
     };
 
-    const saveTransaction = async (transaction, actino, postSaveCallback) => {
+    const saveTransaction = async (transaction, action, postSaveCallback) => {
         setSaveLoadingState(true);
         const authToken = await AuthService.getTokenAsync();
         const url = `${process.env.EXPO_PUBLIC_EXPENSE_TRACK_APP_SERVER_HOST_URL}/api/transactions`;
         let verb = 'POST';
 
-        if(actino === 'update')
+        if(action === 'update')
             verb = 'PUT';
 
         const fetchObj = {
@@ -50,10 +50,6 @@ const useTransactionCreateUdpateDelete = () => {
 
         try{
             const res = await fetch(url, fetchObj);
-
-            console.log(res);
-
-            const data = await res.json();
 
             if(postSaveCallback !== undefined)
                 postSaveCallback();

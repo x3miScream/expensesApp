@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import {APP_EVENT_CONSTANTS} from '../../Constants/ApplicationEventConstants.jsx';
 import { 
   View, 
   Text, 
@@ -6,11 +7,17 @@ import {
   StyleSheet, 
   SafeAreaView, 
   StatusBar, 
-  Platform 
+  TouchableOpacity,
+  DeviceEventEmitter
 } from 'react-native';
 
+import {
+  RefreshCcw
+} from 'lucide-react-native';
+
+import {Styles, THEME} from '../../Styles/Styles.jsx';
+
 import useGetMonthlyBudget from '../../Hooks/useGetMonthlyBudget.jsx';
-import { monthly_budget, budget_summary } from '../../dummy_data/data';
 
 // --- MOCK UTILS & HOOKS FOR PREVIEW ---
 // In your local project, replace these with your actual imports:
@@ -51,9 +58,24 @@ const MonthlyBudgetGrid = ({ months }) => {
   useEffect(() => {
     getMonthlyBudgetDetails(setMonthlyBudgetData);
     getMonthlyBudgetSummary(setMonthlyBudgetSummaryData);
+
+    const transactionUdpateEventSubscription = DeviceEventEmitter.addListener(APP_EVENT_CONSTANTS.TRANSACTION_ADD_EVENT, (data) => {
+      getMonthlyBudgetDetails(setMonthlyBudgetData);
+      getMonthlyBudgetSummary(setMonthlyBudgetSummaryData);
+    });
+
+    // 2. IMPORTANT: Clean up the listener on unmount to prevent memory leaks
+    return () => {
+        transactionUdpateEventSubscription.remove();
+    };
   }, []);
 
   const currentMonth = months[0];
+
+  const refreshMonthlyBudgetGridData = async () => {
+    await getMonthlyBudgetDetails(setMonthlyBudgetData);
+    await getMonthlyBudgetSummary(setMonthlyBudgetSummaryData);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -65,6 +87,9 @@ const MonthlyBudgetGrid = ({ months }) => {
             <Text style={styles.cardHeaderText}>
               Monthly Fixed Budget & Actuals
             </Text>
+            <TouchableOpacity onPress={() => refreshMonthlyBudgetGridData()}>
+                <RefreshCcw style={Styles.refreshButtonDark} />
+            </TouchableOpacity>
           </View>
 
           {/* Table Header Row */}
@@ -177,7 +202,16 @@ const MonthlyBudgetGrid = ({ months }) => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f1f5f9' },
   gridCard: { backgroundColor: '#fff', borderRadius: 12, borderWeight: 1, borderColor: '#e2e8f0', overflow: 'hidden' },
-  cardHeader: { backgroundColor: '#f8fafc', padding: 15, borderBottomWidth: 1, borderBottomColor: '#e2e8f0' },
+  cardHeader: 
+  {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0'
+  },
   cardHeaderText: { fontSize: 16, fontWeight: 'bold', color: '#1e293b' },
   tableHeader: { flexDirection: 'row', backgroundColor: '#f1f5f9', paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#e2e8f0' },
   headerLabel: { fontSize: 10, fontWeight: 'bold', color: '#64748b' },

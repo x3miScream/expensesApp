@@ -77,6 +77,46 @@ const Styles = StyleSheet.create({
       },
     }),
   },
+  refreshButtonWhite: {
+    backgroundColor: THEME.colors.cardDark,
+    color: THEME.colors.background,
+    width: 52,
+    height: 52,
+    borderRadius: THEME.radius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: THEME.colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
+  },
+  refreshButtonDark: {
+    backgroundColor: THEME.colors.background,
+    color: THEME.colors.textPrimary,
+    width: 52,
+    height: 52,
+    borderRadius: THEME.radius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: THEME.colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
+  },
   mainCard: {
     backgroundColor: THEME.colors.cardDark,
     borderRadius: THEME.radius.xl,

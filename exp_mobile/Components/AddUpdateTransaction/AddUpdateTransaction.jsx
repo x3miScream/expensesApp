@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import useTransactionCreateUdpateDelete from '../../Hooks/useTransactionCreateUdpateDelete.jsx';
 import useCategoryCRUD from '../../Hooks/useCategoryCRUD.jsx';
 import useGetRecurringTransactions from '../../Hooks/useGetRecurringTransactions.jsx';
-import {formatCurrency, getRangeOfActiveMonths, formatDate} from '../../Utils/Utils.jsx';
+import {formatDate} from '../../Utils/Utils.jsx';
+import {APP_EVENT_CONSTANTS} from '../../Constants/ApplicationEventConstants.jsx';
 
 import { 
   View, 
@@ -13,7 +14,7 @@ import {
   Modal, 
   StyleSheet,
   ScrollView,
-  SafeAreaView,
+  DeviceEventEmitter,
   KeyboardAvoidingView
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -116,7 +117,6 @@ export default function AddUpdateTransaction({setIsModalVisibleCallback, editTra
   };
 
   const handleSave = () => {
-
     let transactionToPost = {
       id: transactionId,
       categoryId: categoryId,
@@ -127,12 +127,19 @@ export default function AddUpdateTransaction({setIsModalVisibleCallback, editTra
       transactionDateTime: date
     };
 
-    if(transactionId === undefined || transactionId === null)
-      createTransaction(transactionToPost);
+    if(transactionId === undefined || transactionId === null || transactionId === '')
+      createTransaction(transactionToPost, postTransactionSaveAction);
     else
-      updateTransaction(transactionToPost);
+      updateTransaction(transactionToPost, postTransactionSaveAction);
 
     setIsModalVisibleCallback(false);
+  };
+
+  const postTransactionSaveAction = () => {
+    console.log("sending event");
+    DeviceEventEmitter.emit(APP_EVENT_CONSTANTS.TRANSACTION_ADD_EVENT, {
+      timestamp: new Date().toLocaleTimeString()
+    });
   };
 
   return (

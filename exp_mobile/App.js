@@ -1,22 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { dummy_transactions } from './dummy_data/data';
-import {formatCurrency, getRangeOfActiveMonths, formatDate} from './Utils/Utils.jsx';
+import { useState, useEffect } from 'react';
+import {getRangeOfActiveMonths} from './Utils/Utils.jsx';
 import useAuth from './Hooks/useAuth.jsx';
 import OverallBalanceSection from './Components/OverallBalanceSection/OverallBalanceSection.jsx';
 import AddUpdateTransaction from './Components/AddUpdateTransaction/AddUpdateTransaction.jsx';
 import useTransactionCreateUdpateDelete from './Hooks/useTransactionCreateUdpateDelete.jsx';
+import {APP_EVENT_CONSTANTS} from './Constants/ApplicationEventConstants.jsx';
 
 import {
-  StyleSheet,
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
-  TextInput,
-  Modal,
-  Platform,
+  DeviceEventEmitter,
+  Modal
 } from 'react-native';
 
 import {Styles, THEME} from './Styles/Styles.jsx';
@@ -25,12 +23,10 @@ import {Styles, THEME} from './Styles/Styles.jsx';
 // In your local Expo project, simply change this to:
 // import { ... } from 'lucide-react-native';
 import { 
-  Calendar,
-  ChevronDown,
+  RefreshCcw,
   Receipt,
   TrendingUp,
   Plus,
-  X,
   CreditCard,
   PieChart
 } from 'lucide-react-native';
@@ -93,6 +89,15 @@ export default function App() {
     });
 
     getTransactions(setTransactions);
+
+    const transactionUdpateEventSubscription = DeviceEventEmitter.addListener(APP_EVENT_CONSTANTS.TRANSACTION_ADD_EVENT, (data) => {
+      getTransactions(setTransactions);
+    });
+
+    // 2. IMPORTANT: Clean up the listener on unmount to prevent memory leaks
+    return () => {
+      transactionUdpateEventSubscription.remove();
+    };
   }, []);
 
   const [editTransactionDetails, setEditTransactionDetails] = useState(null);
@@ -110,23 +115,6 @@ export default function App() {
     setModalVisible(true);
   };
 
-  const handleAddTransaction = () => {
-    if (!newTransaction.title || !newTransaction.amount) return;
-    
-    const amountNum = parseFloat(newTransaction.amount);
-    const item = {
-      id: Date.now().toString(),
-      title: newTransaction.title,
-      amount: newTransaction.type === 'expense' ? -amountNum : amountNum,
-      category: newTransaction.category,
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'dd' }),
-    };
-
-    setTransactions([item, ...transactions]);
-    setModalVisible(false);
-    setNewTransaction({ title: '', amount: '', category: 'General', type: 'expense' });
-  };
-
   // Calculate dynamic totals
   const totals = transactions.reduce((acc, curr) => {
     if (curr.amount > 0) acc.income += curr.amount;
@@ -134,6 +122,10 @@ export default function App() {
     acc.balance = acc.income - acc.expense;
     return acc;
   }, { income: 0, expense: 0, balance: 0 });
+
+  const refreshTransactionGridDataAsync = async () => {
+    await getTransactions(setTransactions);
+  };
 
   return (
     <SafeAreaView style={Styles.container}>
@@ -177,8 +169,11 @@ export default function App() {
 
         <View style={Styles.sectionHeader}>
           <Text style={Styles.sectionTitle}>Recent Activity</Text>
-          <TouchableOpacity>
+          {/* <TouchableOpacity>
             <Text style={Styles.seeAllText}>See All</Text>
+          </TouchableOpacity> */}
+          <TouchableOpacity onPress={async () => await refreshTransactionGridDataAsync()}>
+            <RefreshCcw style={Styles.refreshButtonDark} />
           </TouchableOpacity>
         </View>
 
