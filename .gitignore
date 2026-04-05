@@ -7,6 +7,8 @@ server_mongo/server/bin
 server_mongo/server/obj
 server_mongo/ExpenseApp.Business/bin
 server_mongo/ExpenseApp.Business/obj
+server_mongo/ExpenseApp_Business/bin
+server_mongo/ExpenseApp_Business/obj
 
 
 

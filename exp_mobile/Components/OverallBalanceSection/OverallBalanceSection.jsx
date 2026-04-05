@@ -20,27 +20,26 @@ import {useState, useEffect} from 'react';
 import useGetMonthlyBudget from '../../Hooks/useGetMonthlyBudget.jsx';
 
 const OverallBalanceSection = ({ total, income, expense }) => {
-    
     const [monthlyBudgetSummaryData, setMonthlyBudgetSummaryData] = useState({
-        totalRunningExpenses: 0.00,
-        totalRunningExpensesExpected: 0.00,
-        dailyRemainingBudget: 0.00,
-        totalDailyExpenses: 0.00,
-        totalDailyBudget: 0.00
-        ,
-        currentWeeklyRemainingBudget: {
-            weeklyRemainingBudget: 0.00,
-            weeklyTotalExpenses: 0.00,
-            weeklyExpectedExpenses: 0.00,
-            weeklyPlannedBudget: 0.00
-        }
-        ,
-        monthlyRemainingBudget: 0.00,
-        totalMonthlyExpenses: 0.00,
-        totalRunningExpensesExpected: 0.00,
-        totalMonthlyBudget: 0.00
+      totalRunningExpenses: 0.00,
+      totalRunningExpensesExpected: 0.00,
+      dailyRemainingBudget: 0.00,
+      totalDailyExpenses: 0.00,
+      totalDailyBudget: 0.00
+      ,
+      currentWeeklyRemainingBudget: {
+          weeklyRemainingBudget: 0.00,
+          weeklyTotalExpenses: 0.00,
+          weeklyExpectedExpenses: 0.00,
+          weeklyPlannedBudget: 0.00
+      }
+      ,
+      monthlyRemainingBudget: 0.00,
+      totalMonthlyExpenses: 0.00,
+      totalRunningExpensesExpected: 0.00,
+      totalMonthlyBudget: 0.00
     });
-    const {getMonthlyBudgetDetails, getMonthlyBudgetSummary} = useGetMonthlyBudget();
+    const {getMonthlyBudgetSummary} = useGetMonthlyBudget();
     
     useEffect(() => {
         getMonthlyBudgetSummary(setMonthlyBudgetSummaryData);

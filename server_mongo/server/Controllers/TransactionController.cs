@@ -92,6 +92,55 @@ namespace Server.Controllers
             return transaction is not null ? Ok(transaction) : NotFound();
         }
 
+        [HttpGet]
+        [Route("get-paged/{period}/{itemsPerPage}/{pageNumber}")]
+        public async Task<IActionResult> GetPagedData([FromRoute] int period, [FromRoute] int itemsPerPage, [FromRoute] int pageNumber, CancellationToken cancellationToken)
+        {
+            DateTime periodStartDate = PeriodUtils.GetPeriodStartDate(period);
+            DateTime periodEndDate = PeriodUtils.GetPeriodEndDate(period);
+
+            List<Category> categories = await _categoryCollection.Find(ApplyUserFilter(FilterDefinition<Category>.Empty)).ToListAsync(cancellationToken);
+            List<TransactionReadDto> transactionsDto = new List<TransactionReadDto>();
+            List<Transaction> transactions = new List<Transaction>();
+
+            var transactionFilter = Builders<Transaction>.Filter.And(
+                Builders<Transaction>.Filter.Gte(x => x.TransactionDateTime, periodStartDate),
+                Builders<Transaction>.Filter.Lte(x => x.TransactionDateTime, periodEndDate));
+            var findOptions = new FindOptions<Transaction>()
+            {
+                Skip = itemsPerPage * pageNumber,
+                Limit = itemsPerPage,
+                Sort = Builders<Transaction>.Sort.Descending(x => x.TransactionDateTime)
+            };
+
+            var totalNumberOfTransactions = await _transactionCollection.CountDocumentsAsync(ApplyUserFilter<Transaction>(transactionFilter), null, cancellationToken);
+            transactions = await (await _transactionCollection.FindAsync(ApplyUserFilter<Transaction>(transactionFilter), findOptions, cancellationToken)).ToListAsync(cancellationToken);
+
+            transactionsDto = transactions.Join(categories,
+                                outer => outer.CategoryId,
+                                inner => inner.Id,
+                                (outer, inner) => new TransactionReadDto()
+                                {
+                                    Id = outer.Id,
+                                    Name = outer.Description,
+                                    DateVal = outer.TransactionDateTime,
+                                    Date = outer.TransactionDateTime.ToString("yyyy MMM dd"),
+                                    Timestamp = outer.TransactionDateTime.ToString("yyyy MMM dd"),
+                                    Amount = outer.Amount,
+                                    TransactionType = outer.TransactionType,
+                                    CategoryId = outer.CategoryId,
+                                    CategoryData = inner,
+                                    Category = inner.CategoryName,
+                                    RecurringItemId = outer.RecurringItemId ?? string.Empty
+                                }
+                ).ToList();
+
+            return Ok(new {
+                TotalRecords = totalNumberOfTransactions,
+                Data = transactionsDto
+            });
+        }
+
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Transaction transaction)
         {

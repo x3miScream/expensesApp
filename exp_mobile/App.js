@@ -28,7 +28,9 @@ import {
   TrendingUp,
   Plus,
   CreditCard,
-  PieChart
+  PieChart,
+  Tag,
+  ChevronDown
 } from 'lucide-react-native';
 
 import MonthlyBudgetGrid from './Components/MonthlyBudgetGrid/MonthlyBudgetGrid.jsx';
@@ -100,6 +102,9 @@ export default function App() {
     };
   }, []);
 
+  const [displayPeriod, setDisplayPeriod] = useState(getRangeOfActiveMonths()[0]);
+  const [showPeriodDropdown, setShowPeriodDropdown] = useState(false);
+  const [displayPeriodList, setDisplayPeriodList] = useState(getRangeOfActiveMonths());
   const [editTransactionDetails, setEditTransactionDetails] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [newTransaction, setNewTransaction] = useState({ title: '', amount: '', category: 'General', type: 'expense', transactionDate: new Date() });
@@ -127,6 +132,11 @@ export default function App() {
     await getTransactions(setTransactions);
   };
 
+  const selectDisplayPeriod = (displayPeriod) => {
+    setDisplayPeriod(displayPeriod);
+    setShowPeriodDropdown(false);
+  };
+
   return (
     <SafeAreaView style={Styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -142,7 +152,7 @@ export default function App() {
           income={totals.income} 
           expense={totals.expense} 
         />
-
+        
         <MonthlyBudgetGrid months={getRangeOfActiveMonths()}></MonthlyBudgetGrid>
 
         {/* Quick Actions Row */}
@@ -166,6 +176,30 @@ export default function App() {
             <Text style={Styles.qaText}>Saving</Text>
           </TouchableOpacity>
         </View>
+
+        <Text style={Styles.label}>Period - {displayPeriod}</Text>
+        <View style={Styles.sectionHeader}>
+          <TouchableOpacity 
+          style={Styles.inputWrapper} 
+          onPress={() => {
+              setShowPeriodDropdown(!showPeriodDropdown);
+          }}
+          >
+          <Text style={[Styles.valueText, !displayPeriod && Styles.placeholderText]}>
+              {displayPeriod || "Select Period"}
+          </Text>
+          <ChevronDown size={18} color="#94a3b8" />
+          </TouchableOpacity>
+        </View>
+        {showPeriodDropdown && (
+          <View style={Styles.dropdown}>
+              {displayPeriodList.map((disPeriod) => (
+              <TouchableOpacity key={disPeriod} style={Styles.dropdownItem} onPress={() => selectDisplayPeriod(disPeriod)}>
+                  <Text style={Styles.dropdownItemText}>{disPeriod}</Text>
+              </TouchableOpacity>
+              ))}
+          </View>
+          )}
 
         <View style={Styles.sectionHeader}>
           <Text style={Styles.sectionTitle}>Recent Activity</Text>

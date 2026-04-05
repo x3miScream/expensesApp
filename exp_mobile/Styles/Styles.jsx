@@ -33,7 +33,7 @@ const THEME = {
 };
 
 const Styles = StyleSheet.create({
-  container: {
+  s: {
     flex: 1,
     backgroundColor: THEME.colors.background,
   },
@@ -348,7 +348,60 @@ const Styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '700',
-  }
+  },
+  toggleContainer: { 
+    flexDirection: 'row', 
+    backgroundColor: '#f1f5f9', 
+    borderRadius: 16, 
+    padding: 4, 
+    marginBottom: 28 
+  },
+  toggleBtn: { flex: 1, paddingVertical: 14, alignItems: 'center', borderRadius: 12 },
+  toggleBtnActiveExpense: { backgroundColor: '#ef4444' },
+  toggleBtnActiveIncome: { backgroundColor: '#10b981' },
+  toggleText: { fontWeight: '700', color: '#64748b', fontSize: 15 },
+  toggleTextActive: { color: 'white' },
+
+  label: { 
+    fontSize: 12, 
+    fontWeight: '800', 
+    color: '#94a3b8', 
+    textTransform: 'uppercase', 
+    marginBottom: 8, 
+    marginTop: 16,
+    letterSpacing: 0.5
+  },
+  inputWrapper: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#f8fafc', 
+    borderWidth: 1.5, 
+    borderColor: '#e2e8f0', 
+    borderRadius: 14, 
+    paddingHorizontal: 16, 
+    height: 60 
+  },
+  disabledInput: { backgroundColor: '#f1f5f9', borderColor: '#f1f5f9' },
+  inputIcon: { marginRight: 12 },
+  textInput: { flex: 1, fontSize: 16, color: '#1e293b', fontWeight: '600' },
+  valueText: { flex: 1, fontSize: 16, color: '#1e293b', fontWeight: '600' },
+  placeholderText: { color: '#cbd5e1', fontWeight: '400' },
+
+  dropdown: { 
+    backgroundColor: 'white', 
+    borderRadius: 14, 
+    marginTop: 8, 
+    borderWidth: 1, 
+    borderColor: '#e2e8f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
+    zIndex: 1000
+  },
+  dropdownItem: { padding: 18, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
+  dropdownItemText: { fontSize: 16, color: '#334155', fontWeight: '500' }
 });
 
 export {Styles, THEME};
